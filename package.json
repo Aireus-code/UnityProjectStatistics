@@ -1,0 +1,12 @@
+{
+  "name": "com.aireus.projectstats",
+  "version": "1.0.0",
+  "displayName": "Project Stats",
+  "description": "Track time spent, asset counts and sizes, and version control stats for your Unity project.",
+  "unity": "6000.0",
+  "type": "tool",
+  "author": {
+    "name": "Aireus",
+    "url": "https://github.com/Aireus-code"
+  }
+}

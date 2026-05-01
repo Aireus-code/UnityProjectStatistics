@@ -8,6 +8,10 @@ public class HistorySnapshot
 {
     public string              date;
     public int                 total;
+    public int                 totalLOC;
+    public int                 scriptFileCount;
+    public int                 commitCount;
+    public string              lastCommitDate;
     public List<CategoryCount> categories = new List<CategoryCount>();
 }
 
@@ -44,8 +48,12 @@ public static class ProjectStatsHistory
 
         var snapshot = new HistorySnapshot
         {
-            date  = today,
-            total = ProjectStatsData.TotalAssetCount
+            date            = today,
+            total           = ProjectStatsData.TotalAssetCount,
+            totalLOC        = ProjectStatsData.TotalScriptLines,
+            scriptFileCount = ProjectStatsData.Categories.Find(c => c.Filter == "t:MonoScript")?.Count ?? 0,
+            commitCount     = ProjectStatsData.VcsCommitCount,
+            lastCommitDate  = ProjectStatsData.VcsLastCommitTime
         };
 
         foreach (var cat in ProjectStatsData.Categories)
@@ -57,7 +65,6 @@ public static class ProjectStatsHistory
             data.snapshots.Add(snapshot);
 
         data.snapshots.Sort((a, b) => string.Compare(a.date, b.date, StringComparison.Ordinal));
-
         File.WriteAllText(FilePath, JsonUtility.ToJson(data, true));
     }
 

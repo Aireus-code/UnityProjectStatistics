@@ -13,7 +13,7 @@ public static class ProjectStatsGraph
     private static Vector2 toggleScrollPos;
     private static int     hoveredIndex = -1;
 
-    private static readonly string[] ViewLabels        = { "Total", "Per Category" };
+    private static readonly string[] ViewLabels        = { "Total", "Per Category", "Commits", "Code" };
     private static readonly string[] TimeRangeLabels   = { "30 Days", "90 Days", "Lifetime" };
     private static readonly string[] AggregationLabels = { "None", "Weekly", "Monthly" };
 
@@ -60,10 +60,10 @@ public static class ProjectStatsGraph
             return;
         }
 
-        if (ViewMode == 0)
-            DrawBarGraph(snapshots, windowHeight);
-        else
-            DrawLineGraph(snapshots, windowHeight);
+        if      (ViewMode == 0) DrawBarGraph(snapshots, windowHeight);
+        else if (ViewMode == 1) DrawLineGraph(snapshots, windowHeight);
+        else if (ViewMode == 2) DrawCommitsGraph(snapshots, windowHeight);
+        else                    DrawCodeGraph(snapshots, windowHeight);
     }
 
     private static void DrawControls()
@@ -249,6 +249,91 @@ public static class ProjectStatsGraph
         }
     }
 
+    private static void DrawCommitsGraph(List<HistorySnapshot> snapshots, float windowHeight)
+    {
+        if (ProjectStatsData.VcsType != "git" && ProjectStatsData.VcsType != "plastic")
+        {
+            EditorGUILayout.Space(20);
+            GUILayout.Label("No version control detected.", EditorStyles.centeredGreyMiniLabel);
+            return;
+        }
+        
+        float graphHeight = Mathf.Max(150, windowHeight - 200);
+        Rect  graphRect   = GUILayoutUtility.GetRect(0, graphHeight, GUILayout.ExpandWidth(true));
+        graphRect = Deflate(graphRect, 40, 10, 20, 10);
+
+        if (Event.current.type != EventType.Repaint &&
+            Event.current.type != EventType.MouseMove &&
+            Event.current.type != EventType.Layout)
+            return;
+
+        int     count    = snapshots.Count;
+        float   yMax     = NiceMax(snapshots.Max(s => s.commitCount));
+        float   barWidth = graphRect.width / count;
+        Vector2 mouse    = Event.current.mousePosition;
+
+        DrawGrid(graphRect, yMax);
+        hoveredIndex = -1;
+
+        for (int i = 0; i < count; i++)
+        {
+            float x       = graphRect.x + i * barWidth;
+            float height  = snapshots[i].commitCount / yMax * graphRect.height;
+            float y       = graphRect.yMax - height;
+            var   barRect = new Rect(x + 1, y, barWidth - 2, height);
+
+            bool hovered = mouse.x >= x && mouse.x < x + barWidth &&
+                        mouse.y >= graphRect.y && mouse.y <= graphRect.yMax;
+            if (hovered) hoveredIndex = i;
+
+            EditorGUI.DrawRect(barRect, hovered ? BarHoverColor : BarColor);
+        }
+
+        DrawAxes(graphRect, snapshots.Select(s => s.date).ToList());
+
+        if (hoveredIndex >= 0)
+            DrawCommitsTooltip(mouse, snapshots, hoveredIndex);
+    }
+
+    private static void DrawCodeGraph(List<HistorySnapshot> snapshots, float windowHeight)
+    {
+        float graphHeight = Mathf.Max(150, windowHeight - 200);
+        Rect  graphRect   = GUILayoutUtility.GetRect(0, graphHeight, GUILayout.ExpandWidth(true));
+        graphRect = Deflate(graphRect, 40, 10, 20, 10);
+
+        if (Event.current.type != EventType.Repaint &&
+            Event.current.type != EventType.MouseMove &&
+            Event.current.type != EventType.Layout)
+            return;
+
+        int     count    = snapshots.Count;
+        float   yMax     = NiceMax(snapshots.Max(s => s.totalLOC));
+        float   barWidth = graphRect.width / count;
+        Vector2 mouse    = Event.current.mousePosition;
+
+        DrawGrid(graphRect, yMax);
+        hoveredIndex = -1;
+
+        for (int i = 0; i < count; i++)
+        {
+            float x       = graphRect.x + i * barWidth;
+            float height  = snapshots[i].totalLOC / yMax * graphRect.height;
+            float y       = graphRect.yMax - height;
+            var   barRect = new Rect(x + 1, y, barWidth - 2, height);
+
+            bool hovered = mouse.x >= x && mouse.x < x + barWidth &&
+                        mouse.y >= graphRect.y && mouse.y <= graphRect.yMax;
+            if (hovered) hoveredIndex = i;
+
+            EditorGUI.DrawRect(barRect, hovered ? BarHoverColor : BarColor);
+        }
+
+        DrawAxes(graphRect, snapshots.Select(s => s.date).ToList());
+
+        if (hoveredIndex >= 0)
+            DrawCodeTooltip(mouse, snapshots, hoveredIndex);
+    }
+
     private static void DrawBarTooltip(Vector2 mouse, List<HistorySnapshot> snapshots, int index)
     {
         var snap  = snapshots[index];
@@ -284,6 +369,38 @@ public static class ProjectStatsGraph
             if (!GetCategoryToggle(cat.name) || cat.count == 0) continue;
             lines.Add(cat.name.PadRight(20) + cat.count);
         }
+
+        DrawTooltipBox(mouse, lines);
+    }
+
+    private static void DrawCommitsTooltip(Vector2 mouse, List<HistorySnapshot> snapshots, int index)
+    {
+        var snap  = snapshots[index];
+        int prev  = index > 0 ? snapshots[index - 1].commitCount : snap.commitCount;
+        int delta = snap.commitCount - prev;
+
+        var lines = new List<string>();
+        lines.Add(FormatDate(snap.date));
+        lines.Add("Total commits: " + snap.commitCount + (index > 0 ? "  (" + (delta >= 0 ? "+" : "") + delta + ")" : ""));
+
+        if (!string.IsNullOrEmpty(snap.lastCommitDate))
+            lines.Add("Latest commit: " + FormatCommitTime(snap.lastCommitDate));
+
+        DrawTooltipBox(mouse, lines);
+    }
+
+    private static void DrawCodeTooltip(Vector2 mouse, List<HistorySnapshot> snapshots, int index)
+    {
+        var snap     = snapshots[index];
+        int prevLOC  = index > 0 ? snapshots[index - 1].totalLOC        : snap.totalLOC;
+        int prevFiles = index > 0 ? snapshots[index - 1].scriptFileCount : snap.scriptFileCount;
+        int locDelta  = snap.totalLOC        - prevLOC;
+        int fileDelta = snap.scriptFileCount - prevFiles;
+
+        var lines = new List<string>();
+        lines.Add(FormatDate(snap.date));
+        lines.Add("LOC: " + snap.totalLOC.ToString("N0") + (index > 0 ? "  (" + (locDelta >= 0 ? "+" : "") + locDelta.ToString("N0") + ")" : ""));
+        lines.Add("Files: " + snap.scriptFileCount + (index > 0 ? "  (" + (fileDelta >= 0 ? "+" : "") + fileDelta + ")" : ""));
 
         DrawTooltipBox(mouse, lines);
     }
@@ -446,6 +563,13 @@ public static class ProjectStatsGraph
     private static string FormatDateShort(string iso)
     {
         return DateTime.TryParse(iso, out DateTime d) ? d.ToString("MM/dd") : iso;
+    }
+
+    private static string FormatCommitTime(string unixTimestamp)
+    {
+        if (string.IsNullOrEmpty(unixTimestamp)) return "";
+        if (!long.TryParse(unixTimestamp, out long unix)) return "";
+        return DateTimeOffset.FromUnixTimeSeconds(unix).LocalDateTime.ToString("MMM dd, yyyy  HH:mm");
     }
 
     private static bool GetCategoryToggle(string name)

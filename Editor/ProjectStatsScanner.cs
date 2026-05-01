@@ -56,6 +56,7 @@ public static class ProjectStatsScanner
         ProjectStatsData.LastScanned = DateTime.Now.ToString("MMM dd, yyyy  HH:mm");
 
         ScanVCS();
+        ProjectStatsHistory.SaveSnapshot();
     }
 
     private static int CountCodeLines(string fullPath)

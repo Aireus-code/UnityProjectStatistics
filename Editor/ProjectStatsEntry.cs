@@ -44,6 +44,9 @@ public class ProjectStatsMenu
             ProjectStatsData.SessionStartPlay      = 0f;
             ProjectStatsData.SessionStartUnfocused = 0f;
             ProjectStatsData.CachedCreationDate    = "";
+            
+            ProjectStatsHistory.ClearHistory();
+            ProjectStatsData.Initialized = false;
         }
     }
 

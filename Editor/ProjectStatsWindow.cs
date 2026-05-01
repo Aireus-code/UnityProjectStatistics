@@ -199,7 +199,7 @@ public class ProjectStatsWindow : EditorWindow
         EditorGUILayout.Space(8);
         GUILayout.Label("ASSET HISTORY", EditorStyles.boldLabel);
         EditorGUILayout.Space(6);
-        ProjectStatsGraph.Draw();
+        ProjectStatsGraph.Draw(position.height);
         EditorGUILayout.Space(8);
     }
 

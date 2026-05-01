@@ -44,7 +44,7 @@ public static class ProjectStatsGraph
     private static readonly Color TooltipBg        = new Color(0.15f, 0.15f, 0.15f, 0.95f);
 
 
-    public static void Draw()
+    public static void Draw(float windowHeight)
     {
         LoadPrefs();
         DrawControls();
@@ -60,9 +60,9 @@ public static class ProjectStatsGraph
         }
 
         if (ViewMode == 0)
-            DrawBarGraph(snapshots);
+            DrawBarGraph(snapshots, windowHeight);
         else
-            DrawLineGraph(snapshots);
+            DrawLineGraph(snapshots, windowHeight);
     }
 
 
@@ -95,10 +95,10 @@ public static class ProjectStatsGraph
     }
 
 
-    private static void DrawBarGraph(List<HistorySnapshot> snapshots)
+    private static void DrawBarGraph(List<HistorySnapshot> snapshots, float windowHeight)
     {
-        float graphHeight = Mathf.Max(200, GUILayoutUtility.GetLastRect().height);
-        Rect  graphRect   = GUILayoutUtility.GetRect(0, 220, GUILayout.ExpandWidth(true));
+        float graphHeight = Mathf.Max(150, windowHeight - 160);
+        Rect graphRect = GUILayoutUtility.GetRect(0, graphHeight, GUILayout.ExpandWidth(true));
         graphRect = Deflate(graphRect, 40, 10, 20, 10);
 
         if (Event.current.type != EventType.Repaint &&
@@ -138,14 +138,15 @@ public static class ProjectStatsGraph
     }
 
 
-    private static void DrawLineGraph(List<HistorySnapshot> snapshots)
+    private static void DrawLineGraph(List<HistorySnapshot> snapshots, float windowHeight)
     {
         var categories = ProjectStatsData.Categories;
 
         EditorGUILayout.BeginHorizontal();
 
         EditorGUILayout.BeginVertical();
-        Rect graphRect = GUILayoutUtility.GetRect(0, 220, GUILayout.ExpandWidth(true));
+        float graphHeight = Mathf.Max(150, windowHeight - 200);
+        Rect graphRect = GUILayoutUtility.GetRect(0, graphHeight, GUILayout.ExpandWidth(true));
         graphRect = Deflate(graphRect, 40, 10, 20, 10);
         EditorGUILayout.EndVertical();
 
@@ -352,7 +353,7 @@ public static class ProjectStatsGraph
         EditorGUI.DrawRect(rect, new Color(0.1f, 0.1f, 0.1f, 0.4f));
 
         int interval = yMax <= 200 ? 25 : 50;
-        int lineCount = (int)(yMax / interval);
+        int lineCount = Mathf.Min((int)(yMax / interval), 8);
 
         for (int i = 0; i <= lineCount; i++)
         {
@@ -442,8 +443,14 @@ public static class ProjectStatsGraph
     private static float NiceMax(int value)
     {
         if (value <= 0) return 50;
-        int interval = value <= 200 ? 25 : 50;
-        return ((value / interval) + 1) * interval; // round up then add one extra interval
+        int interval;
+        if      (value <= 200)  interval = 25;
+        else if (value <= 500)  interval = 50;
+        else if (value <= 1000) interval = 100;
+        else if (value <= 2000) interval = 200;
+        else if (value <= 5000) interval = 500;
+        else                    interval = 1000;
+        return ((value / interval) + 1) * interval;
     }
 
     private static Rect Deflate(Rect r, float left, float right, float bottom, float top)

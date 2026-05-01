@@ -244,7 +244,7 @@ public static class ProjectStatsGraph
                 float y = graphRect.yMax - (catCount / yMax) * graphRect.height;
 
                 Handles.color = new Color(0.1f, 0.1f, 0.1f, 0.8f);
-                Handles.DrawSolidDisc(new Vector3(x, y, 0), Vector3.forward, 5f);
+                Handles.DrawSolidDisc(new Vector3(x, y, 0), Vector3.forward, 4f);
 
                 Handles.color = CategoryColors[ci % CategoryColors.Length];
                 Handles.DrawSolidDisc(new Vector3(x, y, 0), Vector3.forward, 3f);

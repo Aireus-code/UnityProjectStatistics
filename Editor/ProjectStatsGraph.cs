@@ -118,7 +118,7 @@ public static class ProjectStatsGraph
             EditorGUI.DrawRect(barRect, hovered ? BarHoverColor : BarColor);
         }
 
-        DrawAxes(graphRect, snapshots.Select(s => s.date).ToList());
+        DrawAxes(graphRect, snapshots.Select(s => s.date).ToList(), barWidth);
 
         if (hoveredIndex >= 0)
             DrawBarTooltip(mouse, snapshots, hoveredIndex);
@@ -289,7 +289,7 @@ public static class ProjectStatsGraph
             EditorGUI.DrawRect(barRect, hovered ? BarHoverColor : BarColor);
         }
 
-        DrawAxes(graphRect, snapshots.Select(s => s.date).ToList());
+        DrawAxes(graphRect, snapshots.Select(s => s.date).ToList(), barWidth);
 
         if (hoveredIndex >= 0)
             DrawCommitsTooltip(mouse, snapshots, hoveredIndex);
@@ -328,7 +328,7 @@ public static class ProjectStatsGraph
             EditorGUI.DrawRect(barRect, hovered ? BarHoverColor : BarColor);
         }
 
-        DrawAxes(graphRect, snapshots.Select(s => s.date).ToList());
+        DrawAxes(graphRect, snapshots.Select(s => s.date).ToList(), barWidth);
 
         if (hoveredIndex >= 0)
             DrawCodeTooltip(mouse, snapshots, hoveredIndex);
@@ -451,18 +451,24 @@ public static class ProjectStatsGraph
         EditorGUI.DrawRect(new Rect(rect.x - 1, rect.y, 1, rect.height), AxisColor);
     }
 
-    private static void DrawAxes(Rect rect, List<string> dates)
+    private static void DrawAxes(Rect rect, List<string> dates, float barWidth = 0)
     {
         int count     = dates.Count;
         int maxLabels = Mathf.Max(1, (int)(rect.width / 60));
         int step      = Mathf.Max(1, count / maxLabels);
 
         for (int i = 0; i < count; i += step)
+        {
+            float x = barWidth > 0
+                ? rect.x + i * barWidth + barWidth / 2
+                : GetX(rect, i, count);
+
             GUI.Label(
-                new Rect(GetX(rect, i, count) - 30, rect.yMax + 2, 60, 16),
+                new Rect(x - 30, rect.yMax + 2, 60, 16),
                 FormatDateShort(dates[i]),
                 CenteredMiniLabel()
             );
+        }
     }
 
     private static List<HistorySnapshot> GetFilteredSnapshots()

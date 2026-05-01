@@ -352,8 +352,15 @@ public static class ProjectStatsGraph
     {
         EditorGUI.DrawRect(rect, new Color(0.1f, 0.1f, 0.1f, 0.4f));
 
-        int interval = yMax <= 200 ? 25 : 50;
-        int lineCount = Mathf.Min((int)(yMax / interval), 8);
+        int interval;
+        if      (yMax <= 200)  interval = 25;
+        else if (yMax <= 500)  interval = 50;
+        else if (yMax <= 1000) interval = 100;
+        else if (yMax <= 2000) interval = 200;
+        else if (yMax <= 5000) interval = 500;
+        else                   interval = 1000;
+
+        int lineCount = (int)(yMax / interval);
 
         for (int i = 0; i <= lineCount; i++)
         {

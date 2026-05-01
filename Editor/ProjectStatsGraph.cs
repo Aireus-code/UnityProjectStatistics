@@ -223,6 +223,24 @@ public static class ProjectStatsGraph
             }
         }
 
+        for (int ci = 0; ci < categories.Count; ci++)
+        {
+            if (!GetCategoryToggle(categories[ci].Name)) continue;
+
+            Color dotColor  = CategoryColors[ci % CategoryColors.Length];
+            Handles.color   = dotColor;
+
+            for (int i = 0; i < count; i++)
+            {
+                int   catCount = GetCategoryCount(snapshots[i], categories[ci].Name);
+                float x        = graphRect.x + (count == 1 ? graphRect.width / 2 : i * graphRect.width / (count - 1));
+                float y        = graphRect.yMax - (catCount / yMax) * graphRect.height;
+
+                // Draw a small filled circle using DrawSolidDisc
+                Handles.DrawSolidDisc(new Vector3(x, y, 0), Vector3.forward, 3f);
+            }
+        }
+
         if (closestIndex >= 0)
         {
             float hx = graphRect.x + (count == 1 ? graphRect.width / 2 : closestIndex * graphRect.width / (count - 1));

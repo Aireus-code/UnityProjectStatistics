@@ -457,7 +457,7 @@ public static class ProjectStatsGraph
         else if (value <= 2000) interval = 200;
         else if (value <= 5000) interval = 500;
         else                    interval = 1000;
-        return ((value / interval) + 1) * interval;
+        return ((value / interval) + 2) * interval;
     }
 
     private static Rect Deflate(Rect r, float left, float right, float bottom, float top)

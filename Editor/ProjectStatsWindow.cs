@@ -6,6 +6,9 @@ public class ProjectStatsWindow : EditorWindow
 {
     public static ProjectStatsWindow Instance;
     private Vector2 scrollPos;
+    private int     selectedTab = 0;
+
+    private static readonly string[] Tabs = { "Stats", "History" };
 
     public static void ShowWindow()
     {
@@ -25,12 +28,25 @@ public class ProjectStatsWindow : EditorWindow
 
     private void OnGUI()
     {
+        EditorGUILayout.Space(4);
+        selectedTab = GUILayout.Toolbar(selectedTab, Tabs);
+        EditorGUILayout.Space(4);
+
         scrollPos = EditorGUILayout.BeginScrollView(scrollPos);
-        DrawTimeSection();
-        DrawSeparator();
-        DrawAssetSection();
-        DrawSeparator();
-        DrawVCSSection();
+
+        if (selectedTab == 0)
+        {
+            DrawTimeSection();
+            DrawSeparator();
+            DrawAssetSection();
+            DrawSeparator();
+            DrawVCSSection();
+        }
+        else
+        {
+            DrawHistorySection();
+        }
+
         EditorGUILayout.EndScrollView();
     }
 
@@ -56,17 +72,17 @@ public class ProjectStatsWindow : EditorWindow
         int sessionUnfocusedSecs = (int)(snapUnfocused - ProjectStatsData.SessionStartUnfocused);
         int sessionSecs          = sessionEditorSecs + sessionPlaySecs + sessionUnfocusedSecs;
 
-        DrawTimeRow("Total time",       totalSecs,           true);
-        DrawTimeRow("    In editor",    editorSecs);
-        DrawTimeRow("    In play mode", playSecs);
-        DrawTimeRow("    Outside Unity",unfocusedSecs);
+        DrawTimeRow("Total time",        totalSecs,   true);
+        DrawTimeRow("    In editor",     editorSecs);
+        DrawTimeRow("    In play mode",  playSecs);
+        DrawTimeRow("    Outside Unity", unfocusedSecs);
         EditorGUILayout.Space(8);
-        DrawTimeRow("Session time",     sessionSecs,         true);
-        DrawTimeRow("    In editor",    sessionEditorSecs);
-        DrawTimeRow("    In play mode", sessionPlaySecs);
-        DrawTimeRow("    Outside Unity",sessionUnfocusedSecs);
+        DrawTimeRow("Session time",      sessionSecs, true);
+        DrawTimeRow("    In editor",     sessionEditorSecs);
+        DrawTimeRow("    In play mode",  sessionPlaySecs);
+        DrawTimeRow("    Outside Unity", sessionUnfocusedSecs);
         EditorGUILayout.Space(4);
-        DrawStatRow("Total sessions",   ProjectStatsData.TotalSessions.ToString(), false);
+        DrawStatRow("Total sessions", ProjectStatsData.TotalSessions.ToString(), false);
         EditorGUILayout.Space(8);
 
         if (GUILayout.Button("Reset All Time"))
@@ -155,10 +171,10 @@ public class ProjectStatsWindow : EditorWindow
             case "git":
                 GUILayout.Label("Git — " + ProjectStatsData.VcsBranch, EditorStyles.miniLabel);
                 EditorGUILayout.Space(6);
-                DrawStatRow("First commit",   FormatCommitTime(ProjectStatsData.VcsFirstCommitTime), false);
-                DrawStatRow("Last commit",    FormatCommitTime(ProjectStatsData.VcsLastCommitTime),  false);
-                DrawStatRow("Total commits",  ProjectStatsData.VcsCommitCount.ToString(),            false);
-                DrawStatRow("Contributors",   ProjectStatsData.VcsContributors.ToString(),           false);
+                DrawStatRow("First commit",  FormatCommitTime(ProjectStatsData.VcsFirstCommitTime), false);
+                DrawStatRow("Last commit",   FormatCommitTime(ProjectStatsData.VcsLastCommitTime),  false);
+                DrawStatRow("Total commits", ProjectStatsData.VcsCommitCount.ToString(),            false);
+                DrawStatRow("Contributors",  ProjectStatsData.VcsContributors.ToString(),           false);
                 break;
             case "plastic":
                 GUILayout.Label("Unity Version Control — " + ProjectStatsData.VcsBranch, EditorStyles.miniLabel);
@@ -175,6 +191,15 @@ public class ProjectStatsWindow : EditorWindow
                 break;
         }
 
+        EditorGUILayout.Space(8);
+    }
+
+    private void DrawHistorySection()
+    {
+        EditorGUILayout.Space(8);
+        GUILayout.Label("ASSET HISTORY", EditorStyles.boldLabel);
+        EditorGUILayout.Space(6);
+        ProjectStatsGraph.Draw();
         EditorGUILayout.Space(8);
     }
 

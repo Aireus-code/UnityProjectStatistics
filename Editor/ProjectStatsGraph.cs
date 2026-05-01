@@ -205,6 +205,8 @@ public static class ProjectStatsGraph
         for (int ci = 0; ci < categories.Count; ci++)
         {
             if (!GetCategoryToggle(categories[ci].Name)) continue;
+
+            float xOffset = (ci % 2 == 0) ? -1.5f : 1.5f;
             Handles.color = CategoryColors[ci % CategoryColors.Length];
 
             for (int i = 1; i < count; i++)
@@ -214,8 +216,8 @@ public static class ProjectStatsGraph
 
                 if (prevCount == 0 && currCount == 0) continue;
 
-                float x0 = graphRect.x + (count == 1 ? graphRect.width / 2 : (i - 1) * graphRect.width / (count - 1));
-                float x1 = graphRect.x + (count == 1 ? graphRect.width / 2 : i       * graphRect.width / (count - 1));
+                float x0 = graphRect.x + (count == 1 ? graphRect.width / 2 : (i - 1) * graphRect.width / (count - 1)) + xOffset;
+                float x1 = graphRect.x + (count == 1 ? graphRect.width / 2 : i       * graphRect.width / (count - 1)) + xOffset;
                 float y0 = graphRect.yMax - (prevCount / yMax) * graphRect.height;
                 float y1 = graphRect.yMax - (currCount / yMax) * graphRect.height;
                 Handles.DrawLine(new Vector3(x0, y0), new Vector3(x1, y1));
@@ -235,12 +237,14 @@ public static class ProjectStatsGraph
         {
             if (!GetCategoryToggle(categories[ci].Name)) continue;
 
+            float xOffset = (ci % 2 == 0) ? -1.5f : 1.5f;
+
             for (int i = 0; i < count; i++)
             {
                 int catCount = GetCategoryCount(snapshots[i], categories[ci].Name);
                 if (catCount == 0) continue;
 
-                float x = graphRect.x + (count == 1 ? graphRect.width / 2 : i * graphRect.width / (count - 1));
+                float x = graphRect.x + (count == 1 ? graphRect.width / 2 : i * graphRect.width / (count - 1)) + xOffset;
                 float y = graphRect.yMax - (catCount / yMax) * graphRect.height;
 
                 Handles.color = new Color(0.1f, 0.1f, 0.1f, 0.8f);

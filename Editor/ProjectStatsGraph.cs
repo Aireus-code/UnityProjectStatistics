@@ -342,7 +342,7 @@ public static class ProjectStatsGraph
 
         var lines = new List<string>();
         lines.Add(FormatDate(snap.date));
-        lines.Add("Total: " + snap.total + (index > 0 ? "  (" + (delta >= 0 ? "+" : "") + delta + ")" : ""));
+        lines.Add("Total: " + snap.total + (index > 0 && delta != 0 ? "  (" + (delta >= 0 ? "+" : "") + delta + ")" : ""));
         lines.Add("─────────────────");
 
         if (index > 0)
@@ -381,7 +381,7 @@ public static class ProjectStatsGraph
 
         var lines = new List<string>();
         lines.Add(FormatDate(snap.date));
-        lines.Add("Total commits: " + snap.commitCount + (index > 0 ? "  (" + (delta >= 0 ? "+" : "") + delta + ")" : ""));
+        lines.Add("Total commits: " + snap.commitCount + (index > 0 && delta != 0 ? "  (" + (delta >= 0 ? "+" : "") + delta + ")" : ""));
 
         if (!string.IsNullOrEmpty(snap.lastCommitDate))
             lines.Add("Latest commit: " + FormatCommitTime(snap.lastCommitDate));
@@ -399,8 +399,8 @@ public static class ProjectStatsGraph
 
         var lines = new List<string>();
         lines.Add(FormatDate(snap.date));
-        lines.Add("LOC: " + snap.totalLOC.ToString("N0") + (index > 0 ? "  (" + (locDelta >= 0 ? "+" : "") + locDelta.ToString("N0") + ")" : ""));
-        lines.Add("Files: " + snap.scriptFileCount + (index > 0 ? "  (" + (fileDelta >= 0 ? "+" : "") + fileDelta + ")" : ""));
+        lines.Add("LOC: " + snap.totalLOC.ToString("N0") + (index > 0 && locDelta != 0 ? "  (" + (locDelta >= 0 ? "+" : "") + locDelta + ")" : ""));
+        lines.Add("Files: " + snap.scriptFileCount + (index > 0 && fileDelta != 0 ? "  (" + (fileDelta >= 0 ? "+" : "") + fileDelta + ")" : ""));
 
         DrawTooltipBox(mouse, lines);
     }

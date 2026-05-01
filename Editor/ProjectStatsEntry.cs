@@ -9,8 +9,9 @@ public class ProjectStatsToolbarButton
     [MainToolbarElement(k_ElementName, defaultDockPosition = MainToolbarDockPosition.Right)]
     static IEnumerable<MainToolbarElement> CreateButton()
     {
+        var icon = EditorGUIUtility.IconContent("d_AnalyticsTracker Icon");
         yield return new MainToolbarButton(
-            new MainToolbarContent("Project Stats", "Open Project Stats"),
+            new MainToolbarContent("", icon.image as Texture2D, "Open Project Stats"),
             () => ProjectStatsWindow.ShowWindow()
         );
     }

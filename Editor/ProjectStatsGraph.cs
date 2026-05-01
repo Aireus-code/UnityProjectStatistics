@@ -344,15 +344,20 @@ public static class ProjectStatsGraph
     {
         EditorGUI.DrawRect(rect, new Color(0.1f, 0.1f, 0.1f, 0.4f));
 
-        int gridLines = 4;
-        for (int i = 0; i <= gridLines; i++)
+        int interval = yMax <= 200 ? 25 : 50;
+        int lineCount = (int)(yMax / interval);
+
+        for (int i = 0; i <= lineCount; i++)
         {
-            float y    = rect.yMax - i * rect.height / gridLines;
-            float val  = i * yMax / gridLines;
+            float val = i * interval;
+            float y   = rect.yMax - (val / yMax) * rect.height;
+
             EditorGUI.DrawRect(new Rect(rect.x, y, rect.width, 1), i == 0 ? AxisColor : GridColor);
-            GUI.Label(new Rect(rect.x - 38, y - 8, 36, 16),
-                val >= 1000 ? (val / 1000f).ToString("0.#") + "k" : val.ToString("0"),
-                RightMiniLabel());
+            GUI.Label(
+                new Rect(rect.x - 38, y - 8, 36, 16),
+                val.ToString(),
+                RightMiniLabel()
+            );
         }
 
         EditorGUI.DrawRect(new Rect(rect.x - 1, rect.y, 1, rect.height), AxisColor);
@@ -429,11 +434,10 @@ public static class ProjectStatsGraph
 
     private static float NiceMax(int value)
     {
-        if (value <= 0) return 10;
-        float magnitude = Mathf.Pow(10, Mathf.Floor(Mathf.Log10(value)));
-        float normalized = value / magnitude;
-        float nice = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
-        return nice * magnitude * 1.1f;
+        if (value <= 0) return 50;
+        int interval = value <= 200 ? 25 : 50;
+        int rounded  = ((value / interval) + 2) * interval; // round up then add one extra interval
+        return rounded;
     }
 
     private static Rect Deflate(Rect r, float left, float right, float bottom, float top)

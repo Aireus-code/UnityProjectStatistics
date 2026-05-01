@@ -202,11 +202,15 @@ public static class ProjectStatsGraph
 
         Handles.BeginGUI();
 
+
+        int visibleIndex = 0;
         for (int ci = 0; ci < categories.Count; ci++)
         {
             if (!GetCategoryToggle(categories[ci].Name)) continue;
 
-            float xOffset = (ci % 2 == 0) ? -1.5f : 1.5f;
+            float xOffset = (visibleIndex % 2 == 0) ? -1.5f : 1.5f;
+            visibleIndex++;
+            
             Handles.color = CategoryColors[ci % CategoryColors.Length];
 
             for (int i = 1; i < count; i++)
@@ -233,11 +237,13 @@ public static class ProjectStatsGraph
 
         var dotPositions = new List<(float x, float y, string name, int count)>();
 
+        visibleIndex = 0;
         for (int ci = 0; ci < categories.Count; ci++)
         {
             if (!GetCategoryToggle(categories[ci].Name)) continue;
 
-            float xOffset = (ci % 2 == 0) ? -1.5f : 1.5f;
+            float xOffset = (visibleIndex % 2 == 0) ? -1.5f : 1.5f;
+            visibleIndex++;
 
             for (int i = 0; i < count; i++)
             {

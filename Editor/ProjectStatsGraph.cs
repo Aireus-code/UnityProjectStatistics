@@ -212,7 +212,7 @@ public static class ProjectStatsGraph
                 if (currCount > 0)
                 {
                     Handles.color = DotOutline;
-                    Handles.DrawSolidDisc(new Vector3(x, y, 0), Vector3.forward, 5f);
+                    Handles.DrawSolidDisc(new Vector3(x, y, 0), Vector3.forward, 4f);
                     Handles.color = GetCategoryColor(ci);
                     Handles.DrawSolidDisc(new Vector3(x, y, 0), Vector3.forward, 3f);
                     dotPositions.Add((x, y, categories[ci].Name, currCount));

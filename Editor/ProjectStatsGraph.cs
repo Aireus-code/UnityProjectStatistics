@@ -234,7 +234,6 @@ public static class ProjectStatsGraph
         for (int ci = 0; ci < categories.Count; ci++)
         {
             if (!GetCategoryToggle(categories[ci].Name)) continue;
-            Handles.color = CategoryColors[ci % CategoryColors.Length];
 
             for (int i = 0; i < count; i++)
             {
@@ -243,7 +242,13 @@ public static class ProjectStatsGraph
 
                 float x = graphRect.x + (count == 1 ? graphRect.width / 2 : i * graphRect.width / (count - 1));
                 float y = graphRect.yMax - (catCount / yMax) * graphRect.height;
+
+                Handles.color = new Color(0.1f, 0.1f, 0.1f, 0.8f);
+                Handles.DrawSolidDisc(new Vector3(x, y, 0), Vector3.forward, 5f);
+
+                Handles.color = CategoryColors[ci % CategoryColors.Length];
                 Handles.DrawSolidDisc(new Vector3(x, y, 0), Vector3.forward, 3f);
+
                 dotPositions.Add((x, y, categories[ci].Name, catCount));
             }
         }
@@ -257,7 +262,7 @@ public static class ProjectStatsGraph
             bool overDot = false;
             foreach (var dot in dotPositions)
             {
-                if (Vector2.Distance(mouse, new Vector2(dot.x, dot.y)) <= 6f)
+                if (Vector2.Distance(mouse, new Vector2(dot.x, dot.y)) <= 8f)
                 {
                     DrawTooltipBox(mouse, new List<string> { dot.name, dot.count.ToString() });
                     overDot = true;

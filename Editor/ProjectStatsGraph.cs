@@ -443,8 +443,8 @@ public static class ProjectStatsGraph
     {
         if (value <= 0) return 50;
         int interval = value <= 200 ? 25 : 50;
-        int rounded  = ((value / interval) + 2) * interval; // round up then add one extra interval
-        return rounded;
+        int rounded  = ((value / interval) + 1) * interval; // round up then add one extra interval
+        return rounded + (interval / 2);
     }
 
     private static Rect Deflate(Rect r, float left, float right, float bottom, float top)

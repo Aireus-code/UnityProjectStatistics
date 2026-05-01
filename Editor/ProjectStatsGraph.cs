@@ -205,39 +205,20 @@ public static class ProjectStatsGraph
         for (int ci = 0; ci < categories.Count; ci++)
         {
             if (!GetCategoryToggle(categories[ci].Name)) continue;
-
-            Color lineColor = CategoryColors[ci % CategoryColors.Length];
-            Handles.color  = lineColor;
+            Handles.color = CategoryColors[ci % CategoryColors.Length];
 
             for (int i = 1; i < count; i++)
             {
-                int prevCount = GetCategoryCount(snapshots[i - 1], categories[ci].Name);
-                int currCount = GetCategoryCount(snapshots[i],     categories[ci].Name);
+                int   prevCount = GetCategoryCount(snapshots[i - 1], categories[ci].Name);
+                int   currCount = GetCategoryCount(snapshots[i],     categories[ci].Name);
+
+                if (prevCount == 0 && currCount == 0) continue;
 
                 float x0 = graphRect.x + (count == 1 ? graphRect.width / 2 : (i - 1) * graphRect.width / (count - 1));
                 float x1 = graphRect.x + (count == 1 ? graphRect.width / 2 : i       * graphRect.width / (count - 1));
                 float y0 = graphRect.yMax - (prevCount / yMax) * graphRect.height;
                 float y1 = graphRect.yMax - (currCount / yMax) * graphRect.height;
-
                 Handles.DrawLine(new Vector3(x0, y0), new Vector3(x1, y1));
-            }
-        }
-
-        for (int ci = 0; ci < categories.Count; ci++)
-        {
-            if (!GetCategoryToggle(categories[ci].Name)) continue;
-
-            Color dotColor  = CategoryColors[ci % CategoryColors.Length];
-            Handles.color   = dotColor;
-
-            for (int i = 0; i < count; i++)
-            {
-                int   catCount = GetCategoryCount(snapshots[i], categories[ci].Name);
-                float x        = graphRect.x + (count == 1 ? graphRect.width / 2 : i * graphRect.width / (count - 1));
-                float y        = graphRect.yMax - (catCount / yMax) * graphRect.height;
-
-                // Draw a small filled circle using DrawSolidDisc
-                Handles.DrawSolidDisc(new Vector3(x, y, 0), Vector3.forward, 3f);
             }
         }
 
@@ -248,12 +229,45 @@ public static class ProjectStatsGraph
             Handles.DrawLine(new Vector3(hx, graphRect.y), new Vector3(hx, graphRect.yMax));
         }
 
+        var dotPositions = new List<(float x, float y, string name, int count)>();
+
+        for (int ci = 0; ci < categories.Count; ci++)
+        {
+            if (!GetCategoryToggle(categories[ci].Name)) continue;
+            Handles.color = CategoryColors[ci % CategoryColors.Length];
+
+            for (int i = 0; i < count; i++)
+            {
+                int catCount = GetCategoryCount(snapshots[i], categories[ci].Name);
+                if (catCount == 0) continue;
+
+                float x = graphRect.x + (count == 1 ? graphRect.width / 2 : i * graphRect.width / (count - 1));
+                float y = graphRect.yMax - (catCount / yMax) * graphRect.height;
+                Handles.DrawSolidDisc(new Vector3(x, y, 0), Vector3.forward, 3f);
+                dotPositions.Add((x, y, categories[ci].Name, catCount));
+            }
+        }
+
         Handles.EndGUI();
 
         DrawAxes(graphRect, snapshots.Select(s => s.date).ToList(), yMax);
 
-        if (closestIndex >= 0)
-            DrawLineTooltip(mouse, snapshots[closestIndex], graphRect);
+        if (graphRect.Contains(mouse))
+        {
+            bool overDot = false;
+            foreach (var dot in dotPositions)
+            {
+                if (Vector2.Distance(mouse, new Vector2(dot.x, dot.y)) <= 6f)
+                {
+                    DrawTooltipBox(mouse, new List<string> { dot.name, dot.count.ToString() });
+                    overDot = true;
+                    break;
+                }
+            }
+
+            if (!overDot && closestIndex >= 0)
+                DrawLineTooltip(mouse, snapshots[closestIndex], graphRect);
+        }
     }
 
 

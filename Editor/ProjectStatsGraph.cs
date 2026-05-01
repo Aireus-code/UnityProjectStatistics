@@ -68,7 +68,7 @@ public static class ProjectStatsGraph
 
     private static void DrawControls()
     {
-        DrawControlRow("View",  ViewLabels,        ViewMode,    v => { ViewMode    = v; SavePrefs(); }, 180);
+        DrawControlRow("View",  ViewLabels,        ViewMode,    v => { ViewMode    = v; SavePrefs(); }, 280);
         EditorGUILayout.Space(2);
         DrawControlRow("Range", TimeRangeLabels,   TimeRange,   v => { TimeRange   = v; SavePrefs(); }, 200);
         EditorGUILayout.Space(2);

@@ -36,7 +36,8 @@ public static class ProjectStatsTime
                 EditorPrefs.SetInt(ProjectStatsData.KeySessions,     ProjectStatsData.TotalSessions);
                 EditorPrefs.SetString(ProjectStatsData.KeySessionID, Guid.NewGuid().ToString());
 
-                ProjectStatsData.SessionStartTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                ProjectStatsData.SessionStartTime = DateTimeOffset.Now.ToUnixTimeSeconds();
+                EditorPrefs.SetString(ProjectStatsData.KeySessionStartTime, ProjectStatsData.SessionStartTime.ToString());
                 ProjectStatsData.LongestSessionSeconds = EditorPrefs.GetInt(ProjectStatsData.KeyLongestSession, 0);
 
                 int initialDuration = (int)(
@@ -53,10 +54,7 @@ public static class ProjectStatsTime
                 ProjectStatsData.SessionStartUnfocused = EditorPrefs.GetFloat(ProjectStatsData.KeySessionStartUnfocused, 0f);
                 ProjectStatsData.LongestSessionSeconds = EditorPrefs.GetInt(ProjectStatsData.KeyLongestSession, 0);
 
-                ProjectStatsData.SessionStartTime = EditorPrefs.GetInt(ProjectStatsData.KeySessionStartTime, 0);
-
-                // TODO: Ask Claude about this line and where it goes
-                EditorPrefs.SetInt(ProjectStatsData.KeySessionStartTime, (int)ProjectStatsData.SessionStartTime);
+                long.TryParse(EditorPrefs.GetString(ProjectStatsData.KeySessionStartTime, "0"), out ProjectStatsData.SessionStartTime); 
             }
 
             ProjectStatsData.SessionStart = EditorApplication.timeSinceStartup;

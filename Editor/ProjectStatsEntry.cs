@@ -64,11 +64,4 @@ public class ProjectStatsMenu
     {
         ProjectStatsData.Initialized = false;
     }
-
-    [MenuItem("Project Stats/Debug Scriptable Objects")]
-    public static void DebugScriptableObjects()
-    {
-        foreach (var guid in AssetDatabase.FindAssets("t:ScriptableObject", new[] { "Assets" }))
-            Debug.Log(AssetDatabase.GUIDToAssetPath(guid));
-    }
 }

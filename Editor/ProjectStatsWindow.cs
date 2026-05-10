@@ -3,6 +3,8 @@ using UnityEditor;
 using System;
 using System.Numerics;
 
+using Vector2 = UnityEngine.Vector2;
+
 public class ProjectStatsWindow : EditorWindow
 {
     public static ProjectStatsWindow Instance;
@@ -19,7 +21,7 @@ public class ProjectStatsWindow : EditorWindow
     private void OnEnable()
     {
         Instance = this;
-        minSize = new UnityEngine.Vector2(350, 400);
+        minSize = new Vector2(350, 400);
         ProjectStatsScanner.ScanAssets();
     }
 

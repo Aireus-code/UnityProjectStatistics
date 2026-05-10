@@ -19,7 +19,7 @@ public class ProjectStatsWindow : EditorWindow
     private void OnEnable()
     {
         Instance = this;
-        minSize = new Vector2(350, 400);
+        minSize = new UnityEngine.Vector2(350, 400);
         ProjectStatsScanner.ScanAssets();
     }
 

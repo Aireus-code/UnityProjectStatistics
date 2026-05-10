@@ -117,17 +117,16 @@ public static class ProjectStatsGraph
     {
         bool active = ViewMode == index;
 
-        var style = new GUIStyle(EditorStyles.toolbarButton);
-        if (active)
-        {
-            style.normal    = EditorStyles.toolbarButton.onNormal;
-            style.hover     = EditorStyles.toolbarButton.onHover;
-            style.active    = EditorStyles.toolbarButton.onActive;
-            style.focused   = EditorStyles.toolbarButton.onFocused;
-        }
-
-        bool clicked = GUILayout.Button(new GUIContent(label, tooltip), style, GUILayout.Width(width));
-        if (clicked) { ViewMode = index; SavePrefs(); }
+        GUIStyle style = GUI.skin.FindStyle("toolbarbutton") ?? EditorStyles.toolbarButton;
+        
+        bool clicked = GUI.Toggle(
+            GUILayoutUtility.GetRect(new GUIContent(label), style, GUILayout.Width(width)),
+            active,
+            new GUIContent(label, tooltip),
+            style
+        );
+        
+        if (clicked != active && clicked) { ViewMode = index; SavePrefs(); }
     }
 
     private static void DrawControlRow(string label, string[] options, int current, Action<int> onChange, float width)

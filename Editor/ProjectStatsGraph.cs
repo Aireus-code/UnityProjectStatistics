@@ -106,13 +106,26 @@ public static class ProjectStatsGraph
         for (int i = 0; i < ViewButtons.Length; i++)
         {
             var (label, tooltip) = ViewButtons[i];
-            bool active  = ViewMode == i;
-            bool clicked = GUILayout.Toggle(active, new GUIContent(label, tooltip), EditorStyles.toolbarButton, GUILayout.Width(buttonWidth));
-            if (clicked && !active) { ViewMode = i; SavePrefs(); }
+            DrawViewButton(i, label, tooltip, buttonWidth);
         }
 
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
+    }
+
+    private static void DrawViewButton(int index, string label, string tooltip, float width)
+    {
+        bool active = ViewMode == index;
+
+        var style = new GUIStyle(EditorStyles.toolbarButton);
+        if (active)
+        {
+            style.normal = EditorStyles.toolbarButton.active;
+            style.hover  = EditorStyles.toolbarButton.active;
+        }
+
+        bool clicked = GUILayout.Button(new GUIContent(label, tooltip), style, GUILayout.Width(width));
+        if (clicked) { ViewMode = index; SavePrefs(); }
     }
 
     private static void DrawControlRow(string label, string[] options, int current, Action<int> onChange, float width)

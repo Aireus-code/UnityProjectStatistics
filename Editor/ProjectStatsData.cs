@@ -70,4 +70,5 @@ public static class ProjectStatsData
     public static string VcsLastCommitTime  = "";
     public static int    VcsCommitCount     = 0;
     public static int    VcsContributors    = 0;
+    public static List<(long timestamp, string message)> CommitLog = new List<(long, string)>();
 }

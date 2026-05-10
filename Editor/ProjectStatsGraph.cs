@@ -6,6 +6,8 @@ using UnityEngine;
 
 public static class ProjectStatsGraph
 {
+    private static Vector2 commitListScrollPos;
+
     public static int ViewMode    = 0;
     public static int TimeRange   = 0;
     public static int Aggregation = 0;
@@ -257,15 +259,16 @@ public static class ProjectStatsGraph
             GUILayout.Label("No version control detected.", EditorStyles.centeredGreyMiniLabel);
             return;
         }
-        
-        float graphHeight = Mathf.Max(150, windowHeight - 200);
-        Rect  graphRect   = GUILayoutUtility.GetRect(0, graphHeight, GUILayout.ExpandWidth(true));
+
+        float commitListHeight = 160f;
+        float graphHeight      = Mathf.Max(150, windowHeight - 200 - commitListHeight);
+        Rect  graphRect        = GUILayoutUtility.GetRect(0, graphHeight, GUILayout.ExpandWidth(true));
         graphRect = Deflate(graphRect, 40, 10, 20, 10);
 
         if (Event.current.type != EventType.Repaint &&
             Event.current.type != EventType.MouseMove &&
             Event.current.type != EventType.Layout)
-            return;
+            goto DrawList;
 
         int     count    = snapshots.Count;
         float   yMax     = NiceMax(snapshots.Max(s => s.commitCount));
@@ -293,6 +296,37 @@ public static class ProjectStatsGraph
 
         if (hoveredIndex >= 0)
             DrawCommitsTooltip(mouse, snapshots, hoveredIndex);
+
+        DrawList:
+        DrawCommitList(commitListHeight);
+    }
+
+    private static void DrawCommitList(float height)
+    {
+        if (ProjectStatsData.CommitLog.Count == 0) return;
+
+        EditorGUILayout.Space(4);
+        EditorGUI.DrawRect(GUILayoutUtility.GetRect(0, 1, GUILayout.ExpandWidth(true)), new Color(1f, 1f, 1f, 0.1f));
+        EditorGUILayout.Space(4);
+
+        GUILayout.Label("Commit History", EditorStyles.boldLabel);
+        EditorGUILayout.Space(2);
+
+        commitListScrollPos = EditorGUILayout.BeginScrollView(commitListScrollPos, GUILayout.Height(height));
+
+        var dateStyle = new GUIStyle(EditorStyles.miniLabel);
+        dateStyle.normal.textColor = new Color(0.6f, 0.6f, 0.6f);
+
+        foreach (var (timestamp, message) in ProjectStatsData.CommitLog)
+        {
+            string date = DateTimeOffset.FromUnixTimeSeconds(timestamp).LocalDateTime.ToString("MMM dd, yyyy  HH:mm");
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label(date,    dateStyle,              GUILayout.Width(160));
+            GUILayout.Label(message, EditorStyles.miniLabel, GUILayout.ExpandWidth(true));
+            EditorGUILayout.EndHorizontal();
+        }
+
+        EditorGUILayout.EndScrollView();
     }
 
     private static void DrawCodeGraph(List<HistorySnapshot> snapshots, float windowHeight)

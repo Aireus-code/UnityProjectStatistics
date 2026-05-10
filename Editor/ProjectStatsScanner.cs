@@ -125,6 +125,16 @@ public static class ProjectStatsScanner
             .Split('\n', StringSplitOptions.RemoveEmptyEntries)
             .Distinct()
             .Count();
+
+        ProjectStatsData.CommitLog.Clear();
+        string log = RunCommand("git", "log --format=%at|%s");
+        foreach (string line in log.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+        {
+            int sep = line.IndexOf('|');
+            if (sep < 0) continue;
+            if (long.TryParse(line.Substring(0, sep), out long ts))
+                ProjectStatsData.CommitLog.Add((ts, line.Substring(sep + 1)));
+        }
     }
 
     private static void ScanPlastic()

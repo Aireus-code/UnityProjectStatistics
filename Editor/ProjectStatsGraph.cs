@@ -18,9 +18,19 @@ public static class ProjectStatsGraph
     private static Vector2 toggleScrollPos;
     private static int     hoveredIndex = -1;
 
-    private static readonly string[] ViewLabels = { "Total", "Per Category", "Commits", "Code", "Time" };
     private static readonly string[] TimeRangeLabels   = { "30 Days", "90 Days", "Lifetime" };
     private static readonly string[] AggregationLabels = { "None", "Weekly", "Monthly" };
+
+
+    private static readonly (string label, string tooltip)[] ViewButtons =
+    {
+        ("Total Assets",        "Total asset count over time"),
+        ("Assets By Category",   "Individual asset category counts over time"),
+        ("Total Commits",       "Total commit count over time"),
+        ("Total Lines of Code", "Total lines of code over time"),
+        ("Session Time",  "Time spent with this project open per day"),
+    };
+
 
     private static readonly Color[] CategoryColors =
     {
@@ -74,11 +84,35 @@ public static class ProjectStatsGraph
 
     private static void DrawControls()
     {
-        DrawControlRow("View",  ViewLabels,        ViewMode,    v => { ViewMode    = v; SavePrefs(); }, 320);
+        DrawViewButtons();
         EditorGUILayout.Space(2);
         DrawControlRow("Range", TimeRangeLabels,   TimeRange,   v => { TimeRange   = v; SavePrefs(); }, 200);
         EditorGUILayout.Space(2);
         DrawControlRow("Group", AggregationLabels, Aggregation, v => { Aggregation = v; SavePrefs(); }, 200);
+    }
+
+    private static void DrawViewButtons()
+    {
+        float buttonWidth = 0;
+        foreach (var (label, _) in ViewButtons)
+        {
+            float w = EditorStyles.toolbarButton.CalcSize(new GUIContent(label)).x + 8;
+            if (w > buttonWidth) buttonWidth = w;
+        }
+
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.Label("View", GUILayout.Width(40));
+
+        for (int i = 0; i < ViewButtons.Length; i++)
+        {
+            var (label, tooltip) = ViewButtons[i];
+            bool active  = ViewMode == i;
+            bool clicked = GUILayout.Toggle(active, new GUIContent(label, tooltip), EditorStyles.toolbarButton, GUILayout.Width(buttonWidth));
+            if (clicked && !active) { ViewMode = i; SavePrefs(); }
+        }
+
+        GUILayout.FlexibleSpace();
+        EditorGUILayout.EndHorizontal();
     }
 
     private static void DrawControlRow(string label, string[] options, int current, Action<int> onChange, float width)

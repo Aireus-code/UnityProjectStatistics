@@ -116,8 +116,10 @@ public static class ProjectStatsExporter
                 break;
         }
 
-        File.WriteAllText(path, sb.ToString());
-        EditorUtility.DisplayDialog("Export Complete", "Report exported to:\n" + path, "OK");
+        string reportText = sb.ToString();
+        File.WriteAllText(path, reportText);
+        GUIUtility.systemCopyBuffer = reportText;
+        EditorUtility.DisplayDialog("Export Complete", "Report exported and copied to clipboard:\n" + path, "OK");
     }
 
     private static string FormatTime(int totalSeconds)

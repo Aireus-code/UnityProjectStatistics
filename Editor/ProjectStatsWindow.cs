@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEditor;
 using System;
+using System.Numerics;
 
 public class ProjectStatsWindow : EditorWindow
 {
@@ -18,6 +19,7 @@ public class ProjectStatsWindow : EditorWindow
     private void OnEnable()
     {
         Instance = this;
+        minSize = new Vector2(350, 400);
         ProjectStatsScanner.ScanAssets();
     }
 
@@ -83,7 +85,6 @@ public class ProjectStatsWindow : EditorWindow
         DrawTimeRow("    Outside Unity", sessionUnfocusedSecs);
         EditorGUILayout.Space(4);
         DrawStatRow("Total sessions", ProjectStatsData.TotalSessions.ToString(), false);
-        DrawStatRow("Total sessions",    ProjectStatsData.TotalSessions.ToString(),                  false);
         DrawTimeRow("Longest session",   ProjectStatsData.LongestSessionSeconds);
         DrawTimeRow("Average session",   ProjectStatsData.TotalSessions > 0
             ? (int)((ProjectStatsData.EditorTotal + ProjectStatsData.PlayTotal + ProjectStatsData.UnfocusedTotal) / ProjectStatsData.TotalSessions)
@@ -202,7 +203,12 @@ public class ProjectStatsWindow : EditorWindow
     private void DrawHistorySection()
     {
         EditorGUILayout.Space(8);
+        EditorGUILayout.BeginHorizontal();
         GUILayout.Label("HISTORY", EditorStyles.boldLabel);
+        GUILayout.FlexibleSpace();
+        if (GUILayout.Button("Refresh", GUILayout.Width(60)))
+            ProjectStatsScanner.ScanAssets();
+        EditorGUILayout.EndHorizontal();
         EditorGUILayout.Space(6);
         ProjectStatsGraph.Draw(position.height);
         EditorGUILayout.Space(8);

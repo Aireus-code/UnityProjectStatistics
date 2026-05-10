@@ -117,8 +117,11 @@ public static class ProjectStatsGraph
     {
         bool active = ViewMode == index;
 
-        GUIStyle style = GUI.skin.FindStyle("toolbarbutton") ?? EditorStyles.toolbarButton;
-        
+        foreach (var s in EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector).customStyles)
+            Debug.Log(s.name);
+
+        GUIStyle style = GUI.skin.FindStyle("ToolbarButton") ?? EditorStyles.toolbarButton;
+
         bool clicked = GUI.Toggle(
             GUILayoutUtility.GetRect(new GUIContent(label), style, GUILayout.Width(width)),
             active,

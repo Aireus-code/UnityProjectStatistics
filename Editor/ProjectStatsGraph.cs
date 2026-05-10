@@ -96,18 +96,21 @@ public static class ProjectStatsGraph
         float buttonWidth = 0;
         foreach (var (label, _) in ViewButtons)
         {
-            float w = EditorStyles.toolbarButton.CalcSize(new GUIContent(label)).x + 8;
+            float w = EditorStyles.toolbarButton.CalcSize(new GUIContent(label)).x + 16;
             if (w > buttonWidth) buttonWidth = w;
         }
+
+        float totalWidth = buttonWidth * ViewButtons.Length;
 
         EditorGUILayout.BeginHorizontal();
         GUILayout.Label("View", GUILayout.Width(40));
 
+        string[] labels = new string[ViewButtons.Length];
         for (int i = 0; i < ViewButtons.Length; i++)
-        {
-            var (label, tooltip) = ViewButtons[i];
-            DrawViewButton(i, label, tooltip, buttonWidth);
-        }
+            labels[i] = ViewButtons[i].label;
+
+        int next = GUILayout.Toolbar(ViewMode, labels, GUILayout.Width(totalWidth));
+        if (next != ViewMode) { ViewMode = next; SavePrefs(); }
 
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();

@@ -96,21 +96,18 @@ public static class ProjectStatsGraph
         float buttonWidth = 0;
         foreach (var (label, _) in ViewButtons)
         {
-            float w = EditorStyles.toolbarButton.CalcSize(new GUIContent(label)).x + 16;
+            float w = EditorStyles.toolbarButton.CalcSize(new GUIContent(label)).x + 8;
             if (w > buttonWidth) buttonWidth = w;
         }
-
-        float totalWidth = buttonWidth * ViewButtons.Length;
 
         EditorGUILayout.BeginHorizontal();
         GUILayout.Label("View", GUILayout.Width(40));
 
-        string[] labels = new string[ViewButtons.Length];
         for (int i = 0; i < ViewButtons.Length; i++)
-            labels[i] = ViewButtons[i].label;
-
-        int next = GUILayout.Toolbar(ViewMode, labels, GUILayout.Width(totalWidth));
-        if (next != ViewMode) { ViewMode = next; SavePrefs(); }
+        {
+            var (label, tooltip) = ViewButtons[i];
+            DrawViewButton(i, label, tooltip, buttonWidth);
+        }
 
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
@@ -123,8 +120,10 @@ public static class ProjectStatsGraph
         var style = new GUIStyle(EditorStyles.toolbarButton);
         if (active)
         {
-            style.normal = EditorStyles.toolbarButton.active;
-            style.hover  = EditorStyles.toolbarButton.active;
+            style.normal    = EditorStyles.toolbarButton.onNormal;
+            style.hover     = EditorStyles.toolbarButton.onHover;
+            style.active    = EditorStyles.toolbarButton.onActive;
+            style.focused   = EditorStyles.toolbarButton.onFocused;
         }
 
         bool clicked = GUILayout.Button(new GUIContent(label, tooltip), style, GUILayout.Width(width));

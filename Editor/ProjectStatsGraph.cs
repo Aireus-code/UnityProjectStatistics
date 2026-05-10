@@ -8,6 +8,9 @@ public static class ProjectStatsGraph
 {
     private static Vector2 commitListScrollPos;
 
+    private static Vector2 sessionListScrollPos;
+    private static string  selectedSessionDate = "";
+
     public static int ViewMode    = 0;
     public static int TimeRange   = 0;
     public static int Aggregation = 0;
@@ -15,7 +18,7 @@ public static class ProjectStatsGraph
     private static Vector2 toggleScrollPos;
     private static int     hoveredIndex = -1;
 
-    private static readonly string[] ViewLabels        = { "Total", "Per Category", "Commits", "Code" };
+    private static readonly string[] ViewLabels = { "Total", "Per Category", "Commits", "Code", "Time" };
     private static readonly string[] TimeRangeLabels   = { "30 Days", "90 Days", "Lifetime" };
     private static readonly string[] AggregationLabels = { "None", "Weekly", "Monthly" };
 
@@ -65,7 +68,8 @@ public static class ProjectStatsGraph
         if      (ViewMode == 0) DrawBarGraph(snapshots, windowHeight);
         else if (ViewMode == 1) DrawLineGraph(snapshots, windowHeight);
         else if (ViewMode == 2) DrawCommitsGraph(snapshots, windowHeight);
-        else                    DrawCodeGraph(snapshots, windowHeight);
+        else if (ViewMode == 3) DrawCodeGraph(snapshots, windowHeight);
+        else if (ViewMode == 4) DrawTimeGraph(snapshots, windowHeight);
     }
 
     private static void DrawControls()
@@ -366,6 +370,206 @@ public static class ProjectStatsGraph
 
         if (hoveredIndex >= 0)
             DrawCodeTooltip(mouse, snapshots, hoveredIndex);
+    }
+
+    private static void DrawTimeGraph(List<HistorySnapshot> snapshots, float windowHeight)
+    {
+        var sessionDays = ProjectStatsHistory.GetSessionDays();
+        if (sessionDays == null || sessionDays.Count == 0)
+        {
+            EditorGUILayout.Space(20);
+            GUILayout.Label("No session data yet.", EditorStyles.centeredGreyMiniLabel);
+            return;
+        }
+
+        var filtered = GetFilteredSessionDays(sessionDays);
+        if (filtered.Count == 0)
+        {
+            EditorGUILayout.Space(20);
+            GUILayout.Label("No session data in selected range.", EditorStyles.centeredGreyMiniLabel);
+            return;
+        }
+
+        float sessionListHeight = string.IsNullOrEmpty(selectedSessionDate) ? 0 : 160f;
+        float graphHeight       = Mathf.Max(150, windowHeight - 200 - sessionListHeight - (string.IsNullOrEmpty(selectedSessionDate) ? 0 : 30));
+        Rect  graphRect         = GUILayoutUtility.GetRect(0, graphHeight, GUILayout.ExpandWidth(true));
+        graphRect = Deflate(graphRect, 40, 10, 20, 10);
+
+        if (Event.current.type != EventType.Repaint &&
+            Event.current.type != EventType.MouseMove &&
+            Event.current.type != EventType.MouseDown &&
+            Event.current.type != EventType.Layout)
+            goto DrawSessionList;
+
+        int     count    = filtered.Count;
+        float   yMax     = NiceMax(filtered.Max(d => d.totalTimeSeconds));
+        float   barWidth = graphRect.width / count;
+        Vector2 mouse    = Event.current.mousePosition;
+
+        DrawGrid(graphRect, yMax);
+        hoveredIndex = -1;
+
+        for (int i = 0; i < count; i++)
+        {
+            float x       = graphRect.x + i * barWidth;
+            float height  = filtered[i].totalTimeSeconds / yMax * graphRect.height;
+            float y       = graphRect.yMax - height;
+            var   barRect = new Rect(x + 1, y, barWidth - 2, height);
+
+            bool hovered = mouse.x >= x && mouse.x < x + barWidth &&
+                        mouse.y >= graphRect.y && mouse.y <= graphRect.yMax;
+            if (hovered) hoveredIndex = i;
+
+            bool selected = filtered[i].date == selectedSessionDate;
+            Color barColor = selected ? new Color(0.90f, 0.70f, 0.20f, 0.85f) : hovered ? BarHoverColor : BarColor;
+            EditorGUI.DrawRect(barRect, barColor);
+
+            if (hovered && Event.current.type == EventType.MouseDown)
+            {
+                selectedSessionDate = filtered[i].date == selectedSessionDate ? "" : filtered[i].date;
+                Event.current.Use();
+            }
+        }
+
+        DrawTimeAxes(graphRect, filtered);
+
+        if (hoveredIndex >= 0)
+            DrawTimeTooltip(mouse, filtered, hoveredIndex);
+
+        DrawSessionList:
+        if (!string.IsNullOrEmpty(selectedSessionDate))
+            DrawSessionList(selectedSessionDate, sessionListHeight);
+    }
+
+    private static void DrawTimeAxes(Rect rect, List<SessionDay> days)
+    {
+        int count     = days.Count;
+        int maxLabels = Mathf.Max(1, (int)(rect.width / 60));
+        int step      = Mathf.Max(1, count / maxLabels);
+        float barWidth = rect.width / count;
+
+        for (int i = 0; i < count; i += step)
+            GUI.Label(
+                new Rect(rect.x + i * barWidth + barWidth / 2 - 30, rect.yMax + 2, 60, 16),
+                FormatDateShort(days[i].date),
+                CenteredMiniLabel()
+            );
+    }
+
+    private static void DrawTimeTooltip(Vector2 mouse, List<SessionDay> days, int index)
+    {
+        var day = days[index];
+        var lines = new List<string>();
+        lines.Add(FormatDate(day.date));
+        lines.Add("Time:      " + FormatSeconds(day.totalTimeSeconds));
+        lines.Add("Sessions:  " + day.sessionCount);
+        DrawTooltipBox(mouse, lines);
+    }
+
+    private static void DrawSessionList(string date, float height)
+    {
+        var day = ProjectStatsHistory.GetSessionDay(date);
+        if (day == null) return;
+
+        EditorGUILayout.Space(4);
+        EditorGUI.DrawRect(GUILayoutUtility.GetRect(0, 1, GUILayout.ExpandWidth(true)), new Color(1f, 1f, 1f, 0.1f));
+        EditorGUILayout.Space(4);
+
+        GUILayout.Label("Sessions — " + FormatDate(date), EditorStyles.boldLabel);
+        EditorGUILayout.Space(2);
+
+        sessionListScrollPos = EditorGUILayout.BeginScrollView(sessionListScrollPos, GUILayout.Height(height));
+
+        var dateStyle = new GUIStyle(EditorStyles.miniLabel);
+        dateStyle.normal.textColor = new Color(0.6f, 0.6f, 0.6f);
+
+        foreach (var session in day.sessions)
+        {
+            string start    = DateTimeOffset.FromUnixTimeSeconds(session.startTime).LocalDateTime.ToString("hh:mm tt");
+            string duration = FormatSeconds(session.durationSeconds);
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label(start,    dateStyle,              GUILayout.Width(80));
+            GUILayout.Label(duration, EditorStyles.miniLabel, GUILayout.ExpandWidth(true));
+            EditorGUILayout.EndHorizontal();
+        }
+
+        EditorGUILayout.EndScrollView();
+    }
+
+    private static string FormatSeconds(int totalSeconds)
+    {
+        int days    = totalSeconds / 86400;
+        int hours   = totalSeconds % 86400 / 3600;
+        int minutes = totalSeconds % 3600 / 60;
+        int seconds = totalSeconds % 60;
+
+        return days > 0
+            ? string.Format("{0}d {1:D2}h {2:D2}m {3:D2}s", days, hours, minutes, seconds)
+            : string.Format("{0:D2}h {1:D2}m {2:D2}s", hours, minutes, seconds);
+    }
+
+    private static List<SessionDay> GetFilteredSessionDays(List<SessionDay> days)
+    {
+        DateTime cutoff = TimeRange == 0 ? DateTime.Now.AddDays(-30)
+                        : TimeRange == 1 ? DateTime.Now.AddDays(-90)
+                        : DateTime.MinValue;
+
+        var filtered = days
+            .Where(d => DateTime.TryParse(d.date, out DateTime dt) && dt >= cutoff)
+            .ToList();
+
+        if (Aggregation == 1) return AggregateSessionDaysByWeek(filtered);
+        if (Aggregation == 2) return AggregateSessionDaysByMonth(filtered);
+        return filtered;
+    }
+
+    private static List<SessionDay> AggregateSessionDaysByWeek(List<SessionDay> days)
+    {
+        return days
+            .GroupBy(d =>
+            {
+                DateTime.TryParse(d.date, out DateTime dt);
+                int diff = (int)dt.DayOfWeek - (int)DayOfWeek.Monday;
+                if (diff < 0) diff += 7;
+                return dt.AddDays(-diff).ToString("yyyy-MM-dd");
+            })
+            .Select(g =>
+            {
+                var merged = new SessionDay { date = g.Key };
+                foreach (var d in g)
+                {
+                    merged.sessions.AddRange(d.sessions);
+                    merged.sessionCount    += d.sessionCount;
+                    merged.totalTimeSeconds += d.totalTimeSeconds;
+                }
+                return merged;
+            })
+            .OrderBy(d => d.date)
+            .ToList();
+    }
+
+    private static List<SessionDay> AggregateSessionDaysByMonth(List<SessionDay> days)
+    {
+        return days
+            .GroupBy(d =>
+            {
+                DateTime.TryParse(d.date, out DateTime dt);
+                return dt.ToString("yyyy-MM");
+            })
+            .Select(g =>
+            {
+                var merged = new SessionDay { date = g.Key };
+                foreach (var d in g)
+                {
+                    merged.sessions.AddRange(d.sessions);
+                    merged.sessionCount    += d.sessionCount;
+                    merged.totalTimeSeconds += d.totalTimeSeconds;
+                }
+                return merged;
+            })
+            .OrderBy(d => d.date)
+            .ToList();
     }
 
     private static void DrawBarTooltip(Vector2 mouse, List<HistorySnapshot> snapshots, int index)

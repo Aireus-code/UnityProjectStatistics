@@ -83,6 +83,11 @@ public class ProjectStatsWindow : EditorWindow
         DrawTimeRow("    Outside Unity", sessionUnfocusedSecs);
         EditorGUILayout.Space(4);
         DrawStatRow("Total sessions", ProjectStatsData.TotalSessions.ToString(), false);
+        DrawStatRow("Total sessions",    ProjectStatsData.TotalSessions.ToString(),                  false);
+        DrawTimeRow("Longest session",   ProjectStatsData.LongestSessionSeconds);
+        DrawTimeRow("Average session",   ProjectStatsData.TotalSessions > 0
+            ? (int)((ProjectStatsData.EditorTotal + ProjectStatsData.PlayTotal + ProjectStatsData.UnfocusedTotal) / ProjectStatsData.TotalSessions)
+            : 0);
         EditorGUILayout.Space(8);
 
         if (GUILayout.Button("Reset All Time"))

@@ -33,14 +33,30 @@ public static class ProjectStatsTime
                 EditorPrefs.SetFloat(ProjectStatsData.KeySessionStartPlay,      ProjectStatsData.SessionStartPlay);
                 EditorPrefs.SetFloat(ProjectStatsData.KeySessionStartUnfocused, ProjectStatsData.SessionStartUnfocused);
                 ProjectStatsData.TotalSessions++;
-                EditorPrefs.SetInt(ProjectStatsData.KeySessions,      ProjectStatsData.TotalSessions);
-                EditorPrefs.SetString(ProjectStatsData.KeySessionID,  Guid.NewGuid().ToString());
+                EditorPrefs.SetInt(ProjectStatsData.KeySessions,     ProjectStatsData.TotalSessions);
+                EditorPrefs.SetString(ProjectStatsData.KeySessionID, Guid.NewGuid().ToString());
+
+                ProjectStatsData.SessionStartTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                ProjectStatsData.LongestSessionSeconds = EditorPrefs.GetInt(ProjectStatsData.KeyLongestSession, 0);
+
+                int initialDuration = (int)(
+                    (ProjectStatsData.EditorTotal    - ProjectStatsData.SessionStartEditor) +
+                    (ProjectStatsData.PlayTotal      - ProjectStatsData.SessionStartPlay) +
+                    (ProjectStatsData.UnfocusedTotal - ProjectStatsData.SessionStartUnfocused)
+                );
+                ProjectStatsHistory.AddOrUpdateSession(ProjectStatsData.SessionStartTime, initialDuration);
             }
             else
             {
                 ProjectStatsData.SessionStartEditor    = EditorPrefs.GetFloat(ProjectStatsData.KeySessionStartEditor,    0f);
                 ProjectStatsData.SessionStartPlay      = EditorPrefs.GetFloat(ProjectStatsData.KeySessionStartPlay,      0f);
                 ProjectStatsData.SessionStartUnfocused = EditorPrefs.GetFloat(ProjectStatsData.KeySessionStartUnfocused, 0f);
+                ProjectStatsData.LongestSessionSeconds = EditorPrefs.GetInt(ProjectStatsData.KeyLongestSession, 0);
+
+                ProjectStatsData.SessionStartTime = EditorPrefs.GetInt(ProjectStatsData.KeySessionStartTime, 0);
+
+                // TODO: Ask Claude about this line and where it goes
+                EditorPrefs.SetInt(ProjectStatsData.KeySessionStartTime, (int)ProjectStatsData.SessionStartTime);
             }
 
             ProjectStatsData.SessionStart = EditorApplication.timeSinceStartup;
@@ -92,6 +108,19 @@ public static class ProjectStatsTime
 
     private static void OnEditorQuit()
     {
+        int sessionDuration = (int)(
+            (ProjectStatsData.EditorTotal    - ProjectStatsData.SessionStartEditor) +
+            (ProjectStatsData.PlayTotal      - ProjectStatsData.SessionStartPlay) +
+            (ProjectStatsData.UnfocusedTotal - ProjectStatsData.SessionStartUnfocused)
+        );
+
+        if (sessionDuration > ProjectStatsData.LongestSessionSeconds)
+        {
+            ProjectStatsData.LongestSessionSeconds = sessionDuration;
+            EditorPrefs.SetInt(ProjectStatsData.KeyLongestSession, sessionDuration);
+        }
+
+        ProjectStatsHistory.AddOrUpdateSession(ProjectStatsData.SessionStartTime, sessionDuration);
         EditorPrefs.DeleteKey(ProjectStatsData.KeySessionID);
         ProjectStatsScanner.ScanAssets();
         Flush();

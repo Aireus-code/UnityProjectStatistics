@@ -23,9 +23,26 @@ public class CategoryCount
 }
 
 [Serializable]
+public class SessionEntry
+{
+    public long startTime;
+    public int  durationSeconds;
+}
+
+[Serializable]
+public class SessionDay
+{
+    public string             date;
+    public int                totalTimeSeconds;
+    public int                sessionCount;
+    public List<SessionEntry> sessions = new List<SessionEntry>();
+}
+
+[Serializable]
 public class HistoryData
 {
-    public List<HistorySnapshot> snapshots = new List<HistorySnapshot>();
+    public List<HistorySnapshot> snapshots    = new List<HistorySnapshot>();
+    public List<SessionDay>      sessionDays  = new List<SessionDay>();
 }
 
 public static class ProjectStatsHistory
@@ -107,4 +124,50 @@ public static class ProjectStatsHistory
             data = new HistoryData();
         }
     }
+
+    public static void AddOrUpdateSession(long sessionStartTime, int durationSeconds)
+    {
+        Load();
+
+        string today   = DateTime.Now.ToString("yyyy-MM-dd");
+        int    dayIdx  = data.sessionDays.FindIndex(d => d.date == today);
+
+        if (dayIdx < 0)
+        {
+            data.sessionDays.Add(new SessionDay { date = today });
+            dayIdx = data.sessionDays.Count - 1;
+        }
+
+        SessionDay day     = data.sessionDays[dayIdx];
+        int        entryIdx = day.sessions.FindIndex(s => s.startTime == sessionStartTime);
+
+        if (entryIdx < 0)
+        {
+            day.sessions.Add(new SessionEntry { startTime = sessionStartTime, durationSeconds = durationSeconds });
+            day.sessionCount++;
+        }
+        else
+        {
+            day.sessions[entryIdx].durationSeconds = durationSeconds;
+        }
+
+        day.totalTimeSeconds = 0;
+        foreach (var s in day.sessions)
+            day.totalTimeSeconds += s.durationSeconds;
+
+        File.WriteAllText(FilePath, JsonUtility.ToJson(data, true));
+    }
+
+    public static List<SessionDay> GetSessionDays()
+    {
+        Load();
+        return data.sessionDays;
+    }
+
+    public static SessionDay GetSessionDay(string date)
+    {
+        Load();
+        return data.sessionDays.Find(d => d.date == date);
+    }
 }
+

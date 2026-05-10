@@ -40,6 +40,8 @@ public static class ProjectStatsData
     public static readonly string KeySessionStartPlay      = Application.dataPath + "_sessionStartPlay";
     public static readonly string KeySessionStartUnfocused = Application.dataPath + "_sessionStartUnfocused";
     public static readonly string KeyCreationDate          = Application.dataPath + "_creationDate";
+    public static readonly string KeyLongestSession        = Application.dataPath + "_longestSession";
+    public static readonly string KeySessionStartTime = Application.dataPath + "_sessionStartTime";
 
     public static float  EditorTotal           = 0f;
     public static float  PlayTotal             = 0f;
@@ -49,6 +51,8 @@ public static class ProjectStatsData
     public static float  SessionStartPlay      = 0f;
     public static float  SessionStartUnfocused = 0f;
     public static double SessionStart          = 0;
+    public static long   SessionStartTime      = 0;
+    public static int    LongestSessionSeconds = 0;
     public static bool   Initialized           = false;
     public static bool   InPlayMode            = false;
     public static bool   IsFocused             = true;

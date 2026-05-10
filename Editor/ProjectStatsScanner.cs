@@ -57,6 +57,13 @@ public static class ProjectStatsScanner
 
         ScanVCS();
         ProjectStatsHistory.SaveSnapshot();
+
+        int sessionDuration = (int)(
+        (ProjectStatsData.EditorTotal    - ProjectStatsData.SessionStartEditor) +
+        (ProjectStatsData.PlayTotal      - ProjectStatsData.SessionStartPlay) +
+        (ProjectStatsData.UnfocusedTotal - ProjectStatsData.SessionStartUnfocused));
+        
+        ProjectStatsHistory.AddOrUpdateSession(ProjectStatsData.SessionStartTime, sessionDuration);
     }
 
     private static int CountCodeLines(string fullPath)

@@ -64,4 +64,20 @@ public class ProjectStatsMenu
     {
         ProjectStatsData.Initialized = false;
     }
+
+    [MenuItem("Project Stats/Export History as CSV")]
+    public static void ExportCSV()
+    {
+        string path = EditorUtility.SaveFilePanel("Export History as CSV", "", "ProjectStatsHistory", "csv");
+        if (string.IsNullOrEmpty(path)) return;
+        ProjectStatsExporter.ExportCSV(path);
+    }
+
+    [MenuItem("Project Stats/Export Stats Report")]
+    public static void ExportReport()
+    {
+        string path = EditorUtility.SaveFilePanel("Export Stats Report", "", "ProjectStatsReport", "txt");
+        if (string.IsNullOrEmpty(path)) return;
+        ProjectStatsExporter.ExportReport(path);
+}
 }

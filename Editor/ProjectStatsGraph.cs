@@ -96,40 +96,32 @@ public static class ProjectStatsGraph
         float buttonWidth = 0;
         foreach (var (label, _) in ViewButtons)
         {
-            float w = EditorStyles.toolbarButton.CalcSize(new GUIContent(label)).x + 8;
+            float w = EditorStyles.toolbarButton.CalcSize(new GUIContent(label)).x + 16;
             if (w > buttonWidth) buttonWidth = w;
         }
+
+        float totalWidth = buttonWidth * ViewButtons.Length;
+
+        string[] labels = new string[ViewButtons.Length];
+        for (int i = 0; i < ViewButtons.Length; i++)
+            labels[i] = ViewButtons[i].label;
 
         EditorGUILayout.BeginHorizontal();
         GUILayout.Label("View", GUILayout.Width(40));
 
+        Rect toolbarRect = GUILayoutUtility.GetRect(new GUIContent(""), GUIStyle.none, GUILayout.Width(totalWidth), GUILayout.Height(18));
+        int next = GUI.Toolbar(toolbarRect, ViewMode, labels);
+        if (next != ViewMode) { ViewMode = next; SavePrefs(); }
+
+        float bw = totalWidth / ViewButtons.Length;
         for (int i = 0; i < ViewButtons.Length; i++)
         {
-            var (label, tooltip) = ViewButtons[i];
-            DrawViewButton(i, label, tooltip, buttonWidth);
+            var btnRect = new Rect(toolbarRect.x + i * bw, toolbarRect.y, bw, toolbarRect.height);
+            GUI.Label(btnRect, new GUIContent("", ViewButtons[i].tooltip));
         }
 
         GUILayout.FlexibleSpace();
         EditorGUILayout.EndHorizontal();
-    }
-
-    private static void DrawViewButton(int index, string label, string tooltip, float width)
-    {
-        bool active = ViewMode == index;
-
-        foreach (var s in EditorGUIUtility.GetBuiltinSkin(EditorSkin.Inspector).customStyles)
-            Debug.Log(s.name);
-
-        GUIStyle style = GUI.skin.FindStyle("ToolbarButton") ?? EditorStyles.toolbarButton;
-
-        bool clicked = GUI.Toggle(
-            GUILayoutUtility.GetRect(new GUIContent(label), style, GUILayout.Width(width)),
-            active,
-            new GUIContent(label, tooltip),
-            style
-        );
-        
-        if (clicked != active && clicked) { ViewMode = index; SavePrefs(); }
     }
 
     private static void DrawControlRow(string label, string[] options, int current, Action<int> onChange, float width)

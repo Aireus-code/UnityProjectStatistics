@@ -21,12 +21,19 @@ public class ProjectStatsToolbarButton
 public class ProjectStatsMenu
 {
     [MenuItem("Project Stats/Open")]
-    public static void Open() { ProjectStatsWindow.ShowWindow(); }
+    public static void Open()
+    {
+        ProjectStatsWindow.ShowWindow();
+    }
 
     [MenuItem("Project Stats/Clear All Data")]
     public static void ClearAllData()
     {
-        if (EditorUtility.DisplayDialog("Clear All Data", "This will delete all saved stats. Are you sure?", "Clear", "Cancel"))
+        if (EditorUtility.DisplayDialog(
+            "Clear All Data",
+            "This will delete all saved stats including time, asset history, and version control data. Are you sure?",
+            "Clear",
+            "Cancel"))
         {
             EditorPrefs.DeleteKey(ProjectStatsData.KeyEditor);
             EditorPrefs.DeleteKey(ProjectStatsData.KeyPlay);
@@ -46,7 +53,7 @@ public class ProjectStatsMenu
             ProjectStatsData.SessionStartPlay      = 0f;
             ProjectStatsData.SessionStartUnfocused = 0f;
             ProjectStatsData.CachedCreationDate    = "";
-            
+
             ProjectStatsHistory.ClearHistory();
             ProjectStatsData.Initialized = false;
         }
@@ -56,5 +63,12 @@ public class ProjectStatsMenu
     public static void Reinitialize()
     {
         ProjectStatsData.Initialized = false;
+    }
+
+    [MenuItem("Project Stats/Debug Scriptable Objects")]
+    public static void DebugScriptableObjects()
+    {
+        foreach (var guid in AssetDatabase.FindAssets("t:ScriptableObject", new[] { "Assets" }))
+            Debug.Log(AssetDatabase.GUIDToAssetPath(guid));
     }
 }

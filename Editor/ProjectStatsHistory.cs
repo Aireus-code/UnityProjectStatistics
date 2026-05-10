@@ -44,7 +44,7 @@ public static class ProjectStatsHistory
         Load();
 
         string today    = DateTime.Now.ToString("yyyy-MM-dd");
-        var    existing = data.snapshots.FindIndex(s => s.date == today);
+        int    existing = data.snapshots.FindIndex(s => s.date == today);
 
         var snapshot = new HistorySnapshot
         {
@@ -81,6 +81,11 @@ public static class ProjectStatsHistory
             File.Delete(FilePath);
     }
 
+    public static void Invalidate()
+    {
+        data = null;
+    }
+
     private static void Load()
     {
         if (data != null) return;
@@ -101,10 +106,5 @@ public static class ProjectStatsHistory
         {
             data = new HistoryData();
         }
-    }
-
-    public static void Invalidate()
-    {
-        data = null;
     }
 }

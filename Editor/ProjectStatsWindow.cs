@@ -197,7 +197,7 @@ public class ProjectStatsWindow : EditorWindow
     private void DrawHistorySection()
     {
         EditorGUILayout.Space(8);
-        GUILayout.Label("ASSET HISTORY", EditorStyles.boldLabel);
+        GUILayout.Label("HISTORY", EditorStyles.boldLabel);
         EditorGUILayout.Space(6);
         ProjectStatsGraph.Draw(position.height);
         EditorGUILayout.Space(8);

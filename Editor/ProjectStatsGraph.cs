@@ -254,7 +254,7 @@ public static class ProjectStatsGraph
                     float y0        = GetY(graphRect, prevCount, yMax);
 
                     if (prevCount > 0 || currCount > 0)
-                        Handles.DrawAAPolyLine(2f, new Vector3(x0, y0), new Vector3(x, y));
+                        Handles.DrawAAPolyLine(3f, new Vector3(x0, y0), new Vector3(x, y));
                 }
 
                 if (currCount > 0)

@@ -155,7 +155,7 @@ public static class ProjectStatsGraph
 
         for (int i = 0; i < count; i++)
         {
-            float x       = graphRect.x + i * barWidth;
+            float x = Mathf.Floor(graphRect.x + i * barWidth);
             float height  = snapshots[i].total / yMax * graphRect.height;
             float y       = graphRect.yMax - height;
             var   barRect = new Rect(x + 1, y, barWidth - 2, height);
@@ -327,7 +327,7 @@ public static class ProjectStatsGraph
 
         for (int i = 0; i < count; i++)
         {
-            float x       = graphRect.x + i * barWidth;
+            float x = Mathf.Floor(graphRect.x + i * barWidth);
             float height  = snapshots[i].commitCount / yMax * graphRect.height;
             float y       = graphRect.yMax - height;
             var   barRect = new Rect(x + 1, y, barWidth - 2, height);
@@ -397,7 +397,7 @@ public static class ProjectStatsGraph
 
         for (int i = 0; i < count; i++)
         {
-            float x       = graphRect.x + i * barWidth;
+            float x = Mathf.Floor(graphRect.x + i * barWidth);
             float height  = snapshots[i].totalLOC / yMax * graphRect.height;
             float y       = graphRect.yMax - height;
             var   barRect = new Rect(x + 1, y, barWidth - 2, height);
@@ -454,7 +454,7 @@ public static class ProjectStatsGraph
 
         for (int i = 0; i < count; i++)
         {
-            float x       = graphRect.x + i * barWidth;
+            float x = Mathf.Floor(graphRect.x + i * barWidth);
             float height  = filtered[i].totalTimeSeconds / yMax * graphRect.height;
             float y       = graphRect.yMax - height;
             var   barRect = new Rect(x + 1, y, barWidth - 2, height);

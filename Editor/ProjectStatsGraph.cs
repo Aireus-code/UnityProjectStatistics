@@ -330,7 +330,7 @@ public static class ProjectStatsGraph
         {
             int   x1     = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
             int   x2     = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
-            float height = yMax > 0 ? Mathf.Min(snapshots[i].total / yMax * graphRect.height, graphRect.height) : 0;
+            float height = yMax > 0 ? Mathf.Min(snapshots[i].commitCount / yMax * graphRect.height, graphRect.height) : 0;
             float y      = graphRect.yMax - height;
             var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
 
@@ -401,7 +401,7 @@ public static class ProjectStatsGraph
         {
             int   x1     = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
             int   x2     = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
-            float height = yMax > 0 ? Mathf.Min(snapshots[i].total / yMax * graphRect.height, graphRect.height) : 0;
+            float height = yMax > 0 ? Mathf.Min(snapshots[i].totalLOC / yMax * graphRect.height, graphRect.height) : 0;
             float y      = graphRect.yMax - height;
             var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
 
@@ -459,7 +459,7 @@ public static class ProjectStatsGraph
         {
             int   x1     = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
             int   x2     = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
-            float height = yMax > 0 ? Mathf.Min(snapshots[i].total / yMax * graphRect.height, graphRect.height) : 0;
+            float height = yMax > 0 ? Mathf.Min(snapshots[i].totalTimeSeconds / yMax * graphRect.height, graphRect.height) : 0;
             float y      = graphRect.yMax - height;
             var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
 

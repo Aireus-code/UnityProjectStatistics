@@ -736,10 +736,7 @@ public static class ProjectStatsGraph
 
         for (int i = 0; i < count; i += step)
         {
-            float x = barWidth > 0
-                ? rect.x + (i + 0.5f) * rect.width / count
-                : GetX(rect, i, count);
-
+            float x = rect.x + (i + 0.5f) * rect.width / count;
             GUI.Label(
                 new Rect(x - 30, rect.yMax + 2, 60, 16),
                 FormatDateShort(dates[i]),

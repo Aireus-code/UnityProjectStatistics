@@ -155,13 +155,14 @@ public static class ProjectStatsGraph
 
         for (int i = 0; i < count; i++)
         {
-            float x = Mathf.Floor(graphRect.x + i * barWidth);
-            float height  = snapshots[i].total / yMax * graphRect.height;
-            float y       = graphRect.yMax - height;
-            var   barRect = new Rect(x + 1, y, barWidth - 2, height);
+            int   x1     = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
+            int   x2     = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
+            float height = snapshots[i].total / yMax * graphRect.height;
+            float y      = graphRect.yMax - height;
+            var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
 
-            bool hovered = mouse.x >= x && mouse.x < x + barWidth &&
-                           mouse.y >= graphRect.y && mouse.y <= graphRect.yMax;
+            bool hovered = mouse.x >= x1 && mouse.x < x2 &&
+                        mouse.y >= graphRect.y && mouse.y <= graphRect.yMax;
             if (hovered) hoveredIndex = i;
 
             EditorGUI.DrawRect(barRect, hovered ? BarHoverColor : BarColor);
@@ -327,12 +328,13 @@ public static class ProjectStatsGraph
 
         for (int i = 0; i < count; i++)
         {
-            float x = Mathf.Floor(graphRect.x + i * barWidth);
-            float height  = snapshots[i].commitCount / yMax * graphRect.height;
-            float y       = graphRect.yMax - height;
-            var   barRect = new Rect(x + 1, y, barWidth - 2, height);
+            int   x1     = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
+            int   x2     = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
+            float height = snapshots[i].total / yMax * graphRect.height;
+            float y      = graphRect.yMax - height;
+            var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
 
-            bool hovered = mouse.x >= x && mouse.x < x + barWidth &&
+            bool hovered = mouse.x >= x1 && mouse.x < x2 &&
                         mouse.y >= graphRect.y && mouse.y <= graphRect.yMax;
             if (hovered) hoveredIndex = i;
 
@@ -397,12 +399,13 @@ public static class ProjectStatsGraph
 
         for (int i = 0; i < count; i++)
         {
-            float x = Mathf.Floor(graphRect.x + i * barWidth);
-            float height  = snapshots[i].totalLOC / yMax * graphRect.height;
-            float y       = graphRect.yMax - height;
-            var   barRect = new Rect(x + 1, y, barWidth - 2, height);
+            int   x1     = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
+            int   x2     = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
+            float height = snapshots[i].total / yMax * graphRect.height;
+            float y      = graphRect.yMax - height;
+            var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
 
-            bool hovered = mouse.x >= x && mouse.x < x + barWidth &&
+            bool hovered = mouse.x >= x1 && mouse.x < x2 &&
                         mouse.y >= graphRect.y && mouse.y <= graphRect.yMax;
             if (hovered) hoveredIndex = i;
 
@@ -454,12 +457,13 @@ public static class ProjectStatsGraph
 
         for (int i = 0; i < count; i++)
         {
-            float x = Mathf.Floor(graphRect.x + i * barWidth);
-            float height  = filtered[i].totalTimeSeconds / yMax * graphRect.height;
-            float y       = graphRect.yMax - height;
-            var   barRect = new Rect(x + 1, y, barWidth - 2, height);
+            int   x1     = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
+            int   x2     = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
+            float height = snapshots[i].total / yMax * graphRect.height;
+            float y      = graphRect.yMax - height;
+            var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
 
-            bool hovered = mouse.x >= x && mouse.x < x + barWidth &&
+            bool hovered = mouse.x >= x1 && mouse.x < x2 &&
                         mouse.y >= graphRect.y && mouse.y <= graphRect.yMax;
             if (hovered) hoveredIndex = i;
 
@@ -741,7 +745,7 @@ public static class ProjectStatsGraph
         for (int i = 0; i < count; i += step)
         {
             float x = barWidth > 0
-                ? rect.x + i * barWidth + barWidth / 2
+                ? rect.x + (i + 0.5f) * rect.width / count
                 : GetX(rect, i, count);
 
             GUI.Label(

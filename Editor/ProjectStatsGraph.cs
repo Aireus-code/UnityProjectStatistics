@@ -562,9 +562,9 @@ public static class ProjectStatsGraph
             .Where(d => DateTime.TryParse(d.date, out DateTime dt) && dt >= cutoff)
             .ToList();
 
-        if (Aggregation == 1) return AggregateSessionDaysByWeek(filtered);
-        if (Aggregation == 2) return AggregateSessionDaysByMonth(filtered);
-        return filtered;
+        if (Aggregation == 1) return AggregateSessionDaysByWeek(FillMissingSessionDays(filtered));
+        if (Aggregation == 2) return AggregateSessionDaysByMonth(FillMissingSessionDays(filtered));
+        return FillMissingSessionDays(filtered);
     }
 
     private static List<SessionDay> AggregateSessionDaysByWeek(List<SessionDay> days)
@@ -765,9 +765,9 @@ public static class ProjectStatsGraph
             .Where(s => DateTime.TryParse(s.date, out DateTime d) && d >= cutoff)
             .ToList();
 
-        if (Aggregation == 1) return AggregateByWeek(filtered);
-        if (Aggregation == 2) return AggregateByMonth(filtered);
-        return filtered;
+        if (Aggregation == 1) return AggregateByWeek(FillMissingDays(filtered));
+        if (Aggregation == 2) return AggregateByMonth(FillMissingDays(filtered));
+        return FillMissingDays(filtered);
     }
 
     private static List<HistorySnapshot> AggregateByWeek(List<HistorySnapshot> snapshots)
@@ -796,6 +796,68 @@ public static class ProjectStatsGraph
             .Select(g => g.Last())
             .OrderBy(s => s.date)
             .ToList();
+    }
+
+    private static List<HistorySnapshot> FillMissingDays(List<HistorySnapshot> snapshots)
+    {
+        if (snapshots.Count == 0) return snapshots;
+
+        var filled   = new List<HistorySnapshot>();
+        var lookup   = new Dictionary<string, HistorySnapshot>();
+        foreach (var snap in snapshots)
+            lookup[snap.date] = snap;
+
+        DateTime.TryParse(snapshots[0].date,                    out DateTime start);
+        DateTime.TryParse(snapshots[snapshots.Count - 1].date,  out DateTime end);
+
+        HistorySnapshot last = null;
+        for (DateTime d = start; d <= end; d = d.AddDays(1))
+        {
+            string key = d.ToString("yyyy-MM-dd");
+            if (lookup.TryGetValue(key, out var snap))
+            {
+                filled.Add(snap);
+                last = snap;
+            }
+            else if (last != null)
+            {
+                filled.Add(new HistorySnapshot
+                {
+                    date            = key,
+                    total           = last.total,
+                    totalLOC        = last.totalLOC,
+                    scriptFileCount = last.scriptFileCount,
+                    commitCount     = last.commitCount,
+                    lastCommitDate  = last.lastCommitDate,
+                    categories      = last.categories
+                });
+            }
+        }
+
+        return filled;
+    }
+
+    private static List<SessionDay> FillMissingSessionDays(List<SessionDay> days)
+    {
+        if (days.Count == 0) return days;
+
+        var filled = new List<SessionDay>();
+        var lookup = new Dictionary<string, SessionDay>();
+        foreach (var day in days)
+            lookup[day.date] = day;
+
+        DateTime.TryParse(days[0].date,                out DateTime start);
+        DateTime.TryParse(days[days.Count - 1].date,   out DateTime end);
+
+        for (DateTime d = start; d <= end; d = d.AddDays(1))
+        {
+            string key = d.ToString("yyyy-MM-dd");
+            filled.Add(lookup.TryGetValue(key, out var day)
+                ? day
+                : new SessionDay { date = key, totalTimeSeconds = 0, sessionCount = 0 });
+        }
+
+        return filled;
     }
 
     private static int GetCategoryCount(HistorySnapshot snap, string name)

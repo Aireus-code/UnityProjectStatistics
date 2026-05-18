@@ -79,7 +79,7 @@ public static class ProjectStatsGraph
         else if (ViewMode == 1) DrawLineGraph(snapshots, windowHeight);
         else if (ViewMode == 2) DrawCommitsGraph(snapshots, windowHeight);
         else if (ViewMode == 3) DrawCodeGraph(snapshots, windowHeight);
-        else if (ViewMode == 4) DrawTimeGraph(snapshots, windowHeight);
+        else if (ViewMode == 4) DrawTimeGraph(windowHeight);
     }
 
     private static void DrawControls()
@@ -145,20 +145,19 @@ public static class ProjectStatsGraph
             Event.current.type != EventType.Layout)
             return;
 
-        int     count    = snapshots.Count;
-        float   yMax     = NiceMax(snapshots.Max(s => s.total));
-        float   barWidth = graphRect.width / count;
-        Vector2 mouse    = Event.current.mousePosition;
+        int     count = snapshots.Count;
+        float   yMax  = NiceMax(snapshots.Max(s => s.total));
+        Vector2 mouse = Event.current.mousePosition;
 
         DrawGrid(graphRect, yMax);
         hoveredIndex = -1;
 
         for (int i = 0; i < count; i++)
         {
-            int   x1     = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
-            int   x2     = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
-            float height = yMax > 0 ? Mathf.Min(snapshots[i].total / yMax * graphRect.height, graphRect.height) : 0;
-            float y      = graphRect.yMax - height;
+            int   x1      = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
+            int   x2      = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
+            float height  = yMax > 0 ? Mathf.Min(snapshots[i].total / yMax * graphRect.height, graphRect.height) : 0;
+            float y       = graphRect.yMax - height;
             var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
 
             bool hovered = mouse.x >= x1 && mouse.x < x2 &&
@@ -168,8 +167,7 @@ public static class ProjectStatsGraph
             EditorGUI.DrawRect(barRect, hovered ? BarHoverColor : BarColor);
         }
 
-        DrawAxes(graphRect, snapshots.Select(s => s.date).ToList(), barWidth);
-
+        DrawAxes(graphRect, snapshots.Select(s => s.date).ToList());
         if (hoveredIndex >= 0)
             DrawBarTooltip(mouse, snapshots, hoveredIndex);
     }
@@ -318,20 +316,19 @@ public static class ProjectStatsGraph
             Event.current.type != EventType.Layout)
             goto DrawList;
 
-        int     count    = snapshots.Count;
-        float   yMax     = NiceMax(snapshots.Max(s => s.commitCount));
-        float   barWidth = graphRect.width / count;
-        Vector2 mouse    = Event.current.mousePosition;
+        int     count = snapshots.Count;
+        float   yMax  = NiceMax(snapshots.Max(s => s.commitCount));
+        Vector2 mouse = Event.current.mousePosition;
 
         DrawGrid(graphRect, yMax);
         hoveredIndex = -1;
 
         for (int i = 0; i < count; i++)
         {
-            int   x1     = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
-            int   x2     = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
-            float height = yMax > 0 ? Mathf.Min(snapshots[i].commitCount / yMax * graphRect.height, graphRect.height) : 0;
-            float y      = graphRect.yMax - height;
+            int   x1      = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
+            int   x2      = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
+            float height  = yMax > 0 ? Mathf.Min(snapshots[i].commitCount / yMax * graphRect.height, graphRect.height) : 0;
+            float y       = graphRect.yMax - height;
             var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
 
             bool hovered = mouse.x >= x1 && mouse.x < x2 &&
@@ -341,8 +338,7 @@ public static class ProjectStatsGraph
             EditorGUI.DrawRect(barRect, hovered ? BarHoverColor : BarColor);
         }
 
-        DrawAxes(graphRect, snapshots.Select(s => s.date).ToList(), barWidth);
-
+        DrawAxes(graphRect, snapshots.Select(s => s.date).ToList());
         if (hoveredIndex >= 0)
             DrawCommitsTooltip(mouse, snapshots, hoveredIndex);
 
@@ -389,20 +385,19 @@ public static class ProjectStatsGraph
             Event.current.type != EventType.Layout)
             return;
 
-        int     count    = snapshots.Count;
-        float   yMax     = NiceMax(snapshots.Max(s => s.totalLOC));
-        float   barWidth = graphRect.width / count;
-        Vector2 mouse    = Event.current.mousePosition;
+        int     count = snapshots.Count;
+        float   yMax  = NiceMax(snapshots.Max(s => s.totalLOC));
+        Vector2 mouse = Event.current.mousePosition;
 
         DrawGrid(graphRect, yMax);
         hoveredIndex = -1;
 
         for (int i = 0; i < count; i++)
         {
-            int   x1     = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
-            int   x2     = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
-            float height = yMax > 0 ? Mathf.Min(snapshots[i].totalLOC / yMax * graphRect.height, graphRect.height) : 0;
-            float y      = graphRect.yMax - height;
+            int   x1      = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
+            int   x2      = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
+            float height  = yMax > 0 ? Mathf.Min(snapshots[i].totalLOC / yMax * graphRect.height, graphRect.height) : 0;
+            float y       = graphRect.yMax - height;
             var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
 
             bool hovered = mouse.x >= x1 && mouse.x < x2 &&
@@ -412,13 +407,12 @@ public static class ProjectStatsGraph
             EditorGUI.DrawRect(barRect, hovered ? BarHoverColor : BarColor);
         }
 
-        DrawAxes(graphRect, snapshots.Select(s => s.date).ToList(), barWidth);
-
+        DrawAxes(graphRect, snapshots.Select(s => s.date).ToList());
         if (hoveredIndex >= 0)
             DrawCodeTooltip(mouse, snapshots, hoveredIndex);
     }
 
-    private static void DrawTimeGraph(List<HistorySnapshot> snapshots, float windowHeight)
+    private static void DrawTimeGraph(float windowHeight)
     {
         var sessionDays = ProjectStatsHistory.GetSessionDays();
         if (sessionDays == null || sessionDays.Count == 0)
@@ -447,27 +441,26 @@ public static class ProjectStatsGraph
             Event.current.type != EventType.Layout)
             goto DrawSessionList;
 
-        int     count    = filtered.Count;
-        float   yMax     = NiceMax(filtered.Max(d => d.totalTimeSeconds));
-        float   barWidth = graphRect.width / count;
-        Vector2 mouse    = Event.current.mousePosition;
+        int     count = filtered.Count;
+        float   yMax  = NiceMax(filtered.Max(d => d.totalTimeSeconds));
+        Vector2 mouse = Event.current.mousePosition;
 
         DrawGrid(graphRect, yMax);
         hoveredIndex = -1;
 
         for (int i = 0; i < count; i++)
         {
-            int   x1     = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
-            int   x2     = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
-            float height = yMax > 0 ? Mathf.Min(snapshots[i].totalTimeSeconds / yMax * graphRect.height, graphRect.height) : 0;
-            float y      = graphRect.yMax - height;
+            int   x1      = Mathf.RoundToInt(graphRect.x + (float)i       * graphRect.width / count);
+            int   x2      = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
+            float height  = yMax > 0 ? Mathf.Min(filtered[i].totalTimeSeconds / yMax * graphRect.height, graphRect.height) : 0;
+            float y       = graphRect.yMax - height;
             var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
 
-            bool hovered = mouse.x >= x1 && mouse.x < x2 &&
-                        mouse.y >= graphRect.y && mouse.y <= graphRect.yMax;
+            bool hovered  = mouse.x >= x1 && mouse.x < x2 &&
+                            mouse.y >= graphRect.y && mouse.y <= graphRect.yMax;
             if (hovered) hoveredIndex = i;
 
-            bool selected = filtered[i].date == selectedSessionDate;
+            bool  selected = filtered[i].date == selectedSessionDate;
             Color barColor = selected ? new Color(0.90f, 0.70f, 0.20f, 0.85f) : hovered ? BarHoverColor : BarColor;
             EditorGUI.DrawRect(barRect, barColor);
 
@@ -479,7 +472,6 @@ public static class ProjectStatsGraph
         }
 
         DrawTimeAxes(graphRect, filtered);
-
         if (hoveredIndex >= 0)
             DrawTimeTooltip(mouse, filtered, hoveredIndex);
 
@@ -736,7 +728,7 @@ public static class ProjectStatsGraph
         EditorGUI.DrawRect(new Rect(rect.x - 1, rect.y, 1, rect.height), AxisColor);
     }
 
-    private static void DrawAxes(Rect rect, List<string> dates, float barWidth = 0)
+    private static void DrawAxes(Rect rect, List<string> dates)
     {
         int count     = dates.Count;
         int maxLabels = Mathf.Max(1, (int)(rect.width / 60));

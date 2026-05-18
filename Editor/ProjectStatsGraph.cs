@@ -158,7 +158,7 @@ public static class ProjectStatsGraph
             int   x2      = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
             float height  = yMax > 0 ? Mathf.Min(snapshots[i].total / yMax * graphRect.height, graphRect.height) : 0;
             float y       = graphRect.yMax - height;
-            var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
+            var barRect = new Rect(x1 + 2, y, x2 - x1 - 4, height);
 
             bool hovered = mouse.x >= x1 && mouse.x < x2 &&
                         mouse.y >= graphRect.y && mouse.y <= graphRect.yMax;
@@ -329,7 +329,7 @@ public static class ProjectStatsGraph
             int   x2      = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
             float height  = yMax > 0 ? Mathf.Min(snapshots[i].commitCount / yMax * graphRect.height, graphRect.height) : 0;
             float y       = graphRect.yMax - height;
-            var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
+            var barRect = new Rect(x1 + 2, y, x2 - x1 - 4, height);
 
             bool hovered = mouse.x >= x1 && mouse.x < x2 &&
                         mouse.y >= graphRect.y && mouse.y <= graphRect.yMax;
@@ -398,7 +398,7 @@ public static class ProjectStatsGraph
             int   x2      = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
             float height  = yMax > 0 ? Mathf.Min(snapshots[i].totalLOC / yMax * graphRect.height, graphRect.height) : 0;
             float y       = graphRect.yMax - height;
-            var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
+            var barRect = new Rect(x1 + 2, y, x2 - x1 - 4, height);
 
             bool hovered = mouse.x >= x1 && mouse.x < x2 &&
                         mouse.y >= graphRect.y && mouse.y <= graphRect.yMax;
@@ -454,7 +454,7 @@ public static class ProjectStatsGraph
             int   x2      = Mathf.RoundToInt(graphRect.x + (float)(i + 1) * graphRect.width / count);
             float height  = yMax > 0 ? Mathf.Min(filtered[i].totalTimeSeconds / yMax * graphRect.height, graphRect.height) : 0;
             float y       = graphRect.yMax - height;
-            var   barRect = new Rect(x1 + 1, y, x2 - x1 - 2, height);
+            var barRect = new Rect(x1 + 2, y, x2 - x1 - 4, height);
 
             bool hovered  = mouse.x >= x1 && mouse.x < x2 &&
                             mouse.y >= graphRect.y && mouse.y <= graphRect.yMax;
